@@ -11,9 +11,5 @@
   NODE_VERSION = "18"
 
 [context.production.environment]
-  VITE_SUPABASE_URL = "https://your-project.supabase.co"
-  VITE_SUPABASE_ANON_KEY = "your-anon-key"
-
-[context.deploy-preview.environment]
-  VITE_SUPABASE_URL = "https://your-project.supabase.co"
-  VITE_SUPABASE_ANON_KEY = "your-anon-key"
+  VITE_SUPABASE_URL = "https://xxrbtbeehmfmtpkyahwg.supabase.co"
+  VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh4cmJ0YmVlaG1mbXRwa3lhaHdnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1Njc2MDQsImV4cCI6MjA5MTE0MzYwNH0.Yh3JIRWWNYgAhXC7vjXEj0LtmO21aCUDeqU4es4VJP8"
