@@ -1,0 +1,554 @@
+# 产品概述
+
+- **产品类型**: 情侣互动记录应用
+- **场景类型**: prototype - app
+- **目标用户**: 情侣/夫妻，希望记录恋爱点滴、管理共同回忆
+- **核心价值**: 为情侣提供一站式恋爱记忆管理平台，通过日记、纪念日、心愿、相册、打卡等功能增进感情互动
+- **界面语言**: 中文
+- **主题偏好**: light（浅色浪漫主题）
+- **导航模式**: 路径导航
+- **导航布局**: Sidebar（左侧边栏导航）
+
+---
+
+## 页面结构总览
+
+| 页面名称 | 文件名 | 路由 | 页面类型 | 入口来源 |
+|---------|-------|------|---------|---------|
+| 恋爱首页 | `HomePage.tsx` | `/` | 一级 | 导航 |
+| 日记列表 | `DiaryPage.tsx` | `/diary` | 一级 | 导航 |
+| 写日记 | `DiaryWritePage.tsx` | `/diary/write` | 二级 | 日记列表 → 新建按钮 |
+| 日记详情 | `DiaryDetailPage.tsx` | `/diary/:id` | 二级 | 日记列表 → 列表项点击 |
+| 纪念日 | `AnniversaryPage.tsx` | `/anniversary` | 一级 | 导航 |
+| 添加纪念日 | `AnniversaryAddPage.tsx` | `/anniversary/add` | 二级 | 纪念日页 → 添加按钮 |
+| 心愿墙 | `WishPage.tsx` | `/wish` | 一级 | 导航 |
+| 心愿详情 | `WishDetailPage.tsx` | `/wish/:id` | 二级 | 心愿墙 → 心愿卡片点击 |
+| 相册 | `AlbumPage.tsx` | `/album` | 一级 | 导航 |
+| 照片详情 | `PhotoDetailPage.tsx` | `/album/photo/:id` | 二级 | 相册页 → 照片点击 |
+| 打卡清单 | `CheckinPage.tsx` | `/checkin` | 一级 | 导航 |
+
+---
+
+## 导航配置
+
+- **导航布局**: Sidebar（左侧边栏，浪漫风格图标）
+- **导航项**（仅一级页面）:
+
+| 导航文字 | 路由 | 图标 |
+|---------|------|------|
+| 💕 恋爱首页 | `/` | Heart |
+| 📝 恋爱日记 | `/diary` | BookOpen |
+| 🎂 纪念日 | `/anniversary` | Calendar |
+| ⭐ 心愿墙 | `/wish` | Star |
+| 📷 甜蜜相册 | `/album` | Image |
+| ✅ 打卡清单 | `/checkin` | CheckCircle |
+
+---
+
+## 功能列表
+
+### 💕 恋爱首页
+- **页面目标**: 展示恋爱概览、快速入口、最近动态
+- **功能点**:
+  - 恋爱天数计数器：显示在一起的总天数（可配置起始日期）
+  - 快捷功能入口：快速跳转到日记/纪念日/打卡等高频功能
+  - 最近动态流：展示最近上传的照片、最新日记、即将到期的纪念日
+  - 今日心情打卡：快速记录当天心情状态
+
+### 📝 日记列表页
+- **页面目标**: 浏览所有恋爱日记，支持筛选和搜索
+- **功能点**:
+  - 日记卡片列表：时间倒序展示日记缩略（标题、日期、首图、摘要）
+  - 日期筛选：按年月筛选日记
+  - 新建日记：富文本编辑器支持文字+图片混合记录
+  - 标签筛选：按心情标签（开心/感动/纪念/旅行等）筛选
+
+### 📝 写日记页
+- **页面目标**: 创建或编辑恋爱日记
+- **功能点**:
+  - 富文本编辑器：支持文字排版、插入图片
+  - 日期选择：可选择过去的日期补录日记
+  - 心情标签：选择当日心情标签（开心/甜蜜/感动/吵架/复合等）
+  - 关联纪念日：可选关联相关纪念日
+
+### 📝 日记详情页
+- **页面目标**: 查看单篇日记完整内容
+- **功能点**:
+  - 日记内容展示：完整渲染富文本内容
+  - 图片浏览：支持图片点击放大查看
+  - 编辑/删除：修改或删除当前日记
+  - 分享功能：生成精美的日记分享卡片
+
+### 🎂 纪念日页
+- **页面目标**: 管理所有重要的恋爱纪念日，显示倒计时
+- **功能点**:
+  - 纪念日列表：展示所有纪念日（名称、日期、倒计时天数）
+  - 分类展示：分类为"已发生"（累计天数）和"倒计时"（剩余天数）
+  - 添加纪念日：创建新的纪念日（支持农历/公历）
+  - 重复提醒：设置每年重复提醒（生日、恋爱周年等）
+
+### ⭐ 心愿墙页
+- **页面目标**: 管理情侣共同心愿清单，追踪完成进度
+- **功能点**:
+  - 心愿卡片墙：瀑布流展示所有心愿（图片+文字）
+  - 状态筛选：筛选"待完成"/"已完成"/"全部"心愿
+  - 添加心愿：创建新心愿（标题、描述、期望完成时间、配图）
+  - 完成标记：标记心愿为已完成，记录完成日期和感想
+
+### ⭐ 心愿详情页
+- **页面目标**: 查看单个心愿详情，记录完成过程
+- **功能点**:
+  - 心愿信息展示：标题、描述、期望时间、配图
+  - 完成记录：记录实际完成时间和完成感想
+  - 关联照片：关联完成心愿时的照片记录
+  - 编辑/删除：修改或删除心愿
+
+### 📷 相册页
+- **页面目标**: 管理和浏览恋爱照片，支持相册分类
+- **功能点**:
+  - 照片网格展示：按时间倒序展示所有照片
+  - 相册分类：支持创建相册（旅行/约会/纪念日/日常等）
+  - 上传照片：支持批量上传，添加照片描述和拍摄日期
+  - 时间轴视图：按时间线浏览照片
+
+### 📷 照片详情页
+- **页面目标**: 查看单张照片详情
+- **功能点**:
+  - 照片大图浏览：支持左右切换浏览
+  - 照片信息：显示拍摄日期、地点、描述
+  - 关联日记：显示关联的日记内容
+  - 下载/删除：保存照片到本地或删除
+
+### ✅ 打卡清单页
+- **页面目标**: 记录情侣共同完成的任务/活动清单
+- **功能点**:
+  - 打卡项目列表：展示所有打卡项目（一起看海、一起做饭等）
+  - 进度统计：显示已完成数量和总数量
+  - 完成打卡：标记项目为已完成，上传完成证明（照片/文字）
+  - 添加打卡项：创建新的打卡项目，设置图标和描述
+  - 打卡热力图：展示打卡活动的时间分布热力图
+
+---
+
+## 数据共享配置
+
+| 存储键名 | 数据说明 | 使用页面 |
+|---------|---------|---------|
+| `__global_love_startDate` | 恋爱开始日期，类型为 `string`（ISO日期） | 首页、纪念日页 |
+| `__global_diary_list` | 日记列表数据，类型为 `IDiary[]` | 日记列表页、首页 |
+| `__global_currentDiary` | 当前查看的日记详情，类型为 `IDiary` | 日记详情页 |
+| `__global_anniversary_list` | 纪念日列表，类型为 `IAnniversary[]` | 纪念日页、首页 |
+| `__global_wish_list` | 心愿列表，类型为 `IWish[]` | 心愿墙页、心愿详情页 |
+| `__global_album_list` | 相册分类列表，类型为 `IAlbum[]` | 相册页、照片详情页 |
+| `__global_checkin_list` | 打卡清单数据，类型为 `ICheckin[]` | 打卡清单页、首页 |
+
+```ts
+interface IDiary {
+  id: string;
+  title: string;
+  content: string; // HTML 富文本
+  date: string; // ISO日期
+  mood: 'happy' | 'sweet' | 'touched' | 'sad' | 'angry' | 'reconcile';
+  images: string[];
+  relatedAnniversaryId?: string;
+  createdAt: string;
+}
+
+interface IAnniversary {
+  id: string;
+  title: string;
+  date: string; // ISO日期
+  isLunar: boolean; // 是否农历
+  isRecurring: boolean; // 是否每年重复
+  icon: string;
+  description?: string;
+}
+
+interface IWish {
+  id: string;
+  title: string;
+  description: string;
+  expectedDate?: string;
+  coverImage?: string;
+  status: 'pending' | 'completed';
+  completedDate?: string;
+  completedNote?: string;
+  completedImages?: string[];
+}
+
+interface IAlbum {
+  id: string;
+  name: string;
+  coverImage: string;
+  photoCount: number;
+  photos: IPhoto[];
+}
+
+interface IPhoto {
+  id: string;
+  url: string;
+  description?: string;
+  takenDate?: string;
+  location?: string;
+  albumId: string;
+}
+
+interface ICheckin {
+  id: string;
+  title: string;
+  description?: string;
+  icon: string;
+  isCompleted: boolean;
+  completedDate?: string;
+  completedProof?: string; // 照片或文字描述
+  category: 'travel' | 'daily' | 'activity' | 'food';
+}
+
+-------
+
+# UI 设计指南
+
+> **场景类型**: `prototype`（应用架构设计 - 情感记录类 App）
+> **子场景**: `app`（多页面应用系统）
+> **确认检查**: 本指南适用于恋爱记录网站，包含日记、纪念日、心愿、相册、打卡等多功能模块，采用 Sidebar 导航布局。
+
+> ℹ️ Section 1-2 为设计意图与决策上下文。Code agent 实现时以 Section 3 及之后的具体参数为准。
+
+## 1. Design Archetype (设计原型)
+
+### 1.1 内容理解
+- **目标用户**: 年轻情侣/夫妻（18-35岁），注重仪式感，喜欢记录恋爱点滴，追求温馨浪漫的数字体验
+- **使用场景**: 日常情感记录、纪念日查看、共同规划未来、回顾甜蜜回忆
+- **核心目的**: 建立情感连接、保存美好回忆、增进情侣互动
+- **期望情绪**: 温暖、甜蜜、安心、幸福、专属感
+- **需避免的感受**: 冰冷技术感、过于严肃、焦虑、廉价感、复杂难用
+
+### 1.2 设计语言
+- **Aesthetic Direction**: 温暖浪漫的数字情书，柔和的粉彩色调搭配圆润的几何形态，营造亲密无间的使用体验
+- **Visual Signature**: 
+  1. 玫瑰粉主色贯穿全局，饱和度适中避免艳俗
+  2. 超大圆角卡片（16-24px）营造柔软亲和感
+  3. 情感化图标系统（爱心、星星、日历等）
+  4. 柔和多层次阴影增加深度
+  5. 暖白色背景营造优质纸张质感
+- **Emotional Tone**: 甜蜜温馨 - 像一本可以互动的数字恋爱日记，每次打开都感受到被爱包围
+- **Design Style**: Rounded 圆润几何 - 情感类应用需强烈亲和感，pill 按钮 + 大圆角卡片 + 柔和阴影，搭配 Soft Blocks 柔色块辅助（页面顶部柔和渐变装饰）
+- **Application Type**: App（多页面后台系统风格，但完全情感化设计）
+
+## 2. Design Principles (设计理念)
+1. **温暖优先于效率**：柔和的色彩、圆润的形状、充足的留白，让用户感到放松而非紧迫
+2. **仪式感设计**：每个重要操作（写日记、完成心愿）都应有庆祝感和反馈
+3. **亲密尺度**：设计元素大小适中，适合两人凑在一起观看手机屏幕或平板
+4. **回忆可视化**：时间线、进度环、热力图等将抽象时间转化为可视化的情感积累
+5. **一致性情感**：从图标到动效，每个细节都传递爱与关怀，避免中性的系统默认感
+
+## 3. Color System (色彩系统)
+
+> **配色设计理由**: 情感记录应用需要建立温暖亲密的氛围，选择暖粉色系作为主色，搭配暖灰背景营造纸张质感，避免冷色调带来的距离感。
+
+### 3.1 主题颜色
+
+| 角色 | CSS 变量 | Tailwind Class | HSL 值 | 设计说明 |
+|-----|---------|----------------|--------|---------|
+| bg | `--background` | `bg-background` | hsl(30 30% 98%) | 暖白色，类似优质信纸，营造温馨基调 |
+| surface | `--card` | `bg-card` | hsl(0 0% 100%) | 纯白卡片，突出内容 |
+| header | `--header` | `bg-[hsl(340,60%,96%)]` | hsl(340 60% 96%) | 浅粉 sidebar/header 背景，与主内容区柔和区分 |
+| text | `--foreground` | `text-foreground` | hsl(340 20% 25%) | 深玫瑰灰，柔和不刺眼，避免纯黑冷峻感 |
+| textMuted | `--muted-foreground` | `text-muted-foreground` | hsl(340 10% 50%) | 次要文字，低饱和暖灰 |
+| primary | `--primary` | `bg-primary` | hsl(340 80% 65%) | 玫瑰粉，主按钮和关键行动点，温暖甜蜜 |
+| primary-foreground | `--primary-foreground` | `text-primary-foreground` | hsl(0 0% 100%) | 主按钮上的白色文字 |
+| accent | `--accent` | `bg-accent` | hsl(340 60% 95%) | 浅粉，hover/focus 状态背景，骨架屏背景 |
+| accent-foreground | `--accent-foreground` | `text-accent-foreground` | hsl(340 30% 40%) | accent 区域上的深粉文字 |
+| border | `--border` | `border-border` | hsl(340 20% 90%) | 暖色调边框，与整体协调 |
+| ring | `--ring` | `ring-ring` | hsl(340 80% 65%) | 聚焦环使用主色 |
+
+### 3.2 Sidebar 颜色（导航专用）
+
+| 角色 | CSS 变量 | Tailwind Class | HSL 值 | 设计说明 |
+|-----|---------|----------------|--------|---------|
+| sidebar | `--sidebar` | `bg-sidebar` | hsl(340 60% 96%) | 与 header 一致，浅粉基底 |
+| sidebar-foreground | `--sidebar-foreground` | `text-sidebar-foreground` | hsl(340 20% 25%) | Sidebar 文字，深玫瑰灰 |
+| sidebar-primary | `--sidebar-primary` | `bg-sidebar-primary` | hsl(340 80% 65%) | 激活态背景，主玫瑰粉 |
+| sidebar-primary-foreground | `--sidebar-primary-foreground` | `text-sidebar-primary-foreground` | hsl(0 0% 100%) | 激活态白色文字 |
+| sidebar-accent | `--sidebar-accent` | `bg-sidebar-accent` | hsl(340 50% 92%) | Hover 态背景，稍深的粉 |
+| sidebar-accent-foreground | `--sidebar-accent-foreground` | `text-sidebar-accent-foreground` | hsl(340 30% 35%) | Hover 态文字 |
+| sidebar-border | `--sidebar-border` | `border-sidebar-border` | hsl(340 20% 88%) | Sidebar 分隔线 |
+| sidebar-ring | `--sidebar-ring` | `ring-sidebar-ring` | hsl(340 80% 65%) | 聚焦环 |
+
+### 3.3 语义颜色（状态反馈）
+
+| 角色 | CSS 变量 | Tailwind Class | HSL 值 | 设计说明 |
+|-----|---------|----------------|--------|---------|
+| success | `--success` | `text-success` | hsl(150 60% 45%) | 柔和绿，完成状态 |
+| success-bg | - | `bg-[hsl(150,60%,95%)]` | hsl(150 60% 95%) | 成功状态浅背景 |
+| warning | `--warning` | `text-warning` | hsl(35 90% 60%) | 暖橙，提醒但不紧急 |
+| warning-bg | - | `bg-[hsl(35,90%,95%)]` | hsl(35 90% 95%) | 警告浅背景 |
+| error | `--error` | `text-error` | hsl(0 70% 60%) | 柔和红，错误状态 |
+| error-bg | - | `bg-[hsl(0,70%,95%)]` | hsl(0 70% 95%) | 错误浅背景 |
+| info | `--info` | `text-info` | hsl(210 70% 60%) | 柔和蓝，信息提示 |
+
+## 4. Typography (字体排版)
+
+**字体选择理由**: 圆润友好的字体传递温暖亲和感，适合情感类应用。
+
+- **Heading**: `Quicksand, Nunito, "PingFang SC", "Microsoft YaHei", sans-serif` - 圆润几何无衬线，标题字重 600-700
+- **Body**: `Inter, "PingFang SC", "Microsoft YaHei", sans-serif` - 清晰易读，正文字重 400
+- **数字专用**: `Inter, "SF Mono", monospace` - 等宽数字保证天数、日期对齐
+
+**字体导入**:
+```css
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Inter:wght@400;500;600&family=Nunito:wght@600;700&display=swap');
+```
+
+## 5. Global Layout Structure (全局布局结构)
+
+### 5.1 导航策略
+
+**导航类型**: Sidebar（左侧固定侧边栏）
+
+**Sidebar 配置**:
+- **宽度**: `w-64` (256px)
+- **位置**: 固定左侧 `fixed left-0 top-0 h-full`
+- **背景**: `bg-sidebar` (hsl 340 60% 96%)
+- **边框**: 右侧分隔线 `border-r border-sidebar-border`
+- **内容结构**:
+  - 顶部：Logo/应用名 + 恋爱天数小部件
+  - 中部：导航项列表（图标 + 文字）
+  - 底部：用户头像/情侣头像展示
+
+**导航项样式**:
+- 默认：`text-sidebar-foreground` + `hover:bg-sidebar-accent`
+- 激活：`bg-sidebar-primary text-sidebar-primary-foreground rounded-xl`
+- 图标：20px，与文字间距 12px
+- 项间距：`gap-1`，每项 `px-3 py-2.5`
+
+### 5.2 Page Content Zones (页面区块配置)
+
+**Standard Content Zone（全页面统一）**:
+- **Maximum Width**: `max-w-[1400px]`（相册网格等宽内容需要）
+- **Padding**: `px-6 lg:px-8 py-6`（Sidebar 展开时左侧预留 256px）
+- **Alignment**: `mx-auto`
+- **Vertical Spacing**: `space-y-8` 主要区块间距
+
+**Sidebar 适配**:
+```html
+<!-- 主布局结构 -->
+<div class="flex min-h-screen bg-background">
+  <aside class="fixed left-0 top-0 w-64 h-full bg-sidebar border-r border-sidebar-border z-50">
+    <!-- Sidebar 内容 -->
+  </aside>
+  <main class="flex-1 ml-64 min-h-screen">
+    <div class="max-w-[1400px] mx-auto px-6 lg:px-8 py-6">
+      <!-- 页面内容 -->
+    </div>
+  </main>
+</div>
+```
+
+**移动端适配**:
+- Sidebar 变为抽屉式（Sheet 组件），通过左上角菜单按钮触发
+- 主内容区 `ml-0`，全宽显示
+
+## 6. Visual Effects & Motion (视觉效果与动效)
+
+### 6.1 圆角与阴影
+
+| 元素 | 圆角 | 阴影 | 说明 |
+|-----|-----|-----|------|
+| 大卡片 | `rounded-2xl` (16px) | `shadow-sm` | 首页统计卡片、相册卡片 |
+| 小卡片/列表项 | `rounded-xl` (12px) | `shadow-sm` | 日记条目、纪念日项 |
+| 按钮 Primary | `rounded-full` (pill) | `shadow-md` | CTA 按钮，悬浮感 |
+| 按钮 Secondary | `rounded-full` (pill) | `shadow-sm` | 次要按钮 |
+| 输入框 | `rounded-xl` (12px) | `shadow-inner` 或 `shadow-sm` | 柔和边缘 |
+| 标签/徽章 | `rounded-full` (pill) | `none` | 紧凑感 |
+| Modal/Dialog | `rounded-2xl` (16px) | `shadow-xl` | 突出层级 |
+| Sidebar 导航项 | `rounded-xl` (12px) | `none` | 柔和激活态 |
+
+### 6.2 装饰手法
+
+**Hero/Header 区域装饰**（首页顶部）:
+- **柔和渐变**: `bg-gradient-to-br from-[hsl(340,80%,95%)] via-[hsl(30,30%,98%)] to-[hsl(35,90%,96%)]`（粉到暖白的微妙渐变）
+- **漂浮元素**: 右上角半透明爱心形状 `opacity-20`，使用 `blur-3xl` 模糊效果
+- **星星点缀**: 小尺寸星星图标散落，opacity 0.3-0.5
+
+**全局装饰**:
+- **心形角标**: 重要卡片右上角可添加小红心角标
+- **柔和光晕**: 重要数字（如恋爱天数）背后添加柔和色块光晕
+
+### 6.3 复杂背景文字处理
+
+- **Sidebar 背景（浅粉）**: 文字使用 `text-sidebar-foreground` (hsl 340 20% 25%)，对比度充足
+- **Primary 按钮（玫瑰粉）**: 文字使用白色，对比度 > 4.5:1
+- **渐变背景**: 确保渐变最浅处文字仍可读，必要时添加 `drop-shadow-sm`
+
+### 6.4 动效设计
+
+**缓动函数**: `cubic-bezier(0.34, 1.56, 0.64, 1)`（弹性缓动，增加活泼感）
+
+**关键动效**:
+1. **卡片悬浮**: `hover:scale-[1.02] hover:shadow-md transition-all duration-300`，轻微放大增加互动感
+2. **按钮点击**: `active:scale-95 transition-transform`，按压反馈
+3. **页面切换**: 内容区淡入 `animate-in fade-in duration-500`，Sidebar 保持固定
+4. **数字变化**: 恋爱天数等数字变化时，使用计数动画 `transition-all duration-1000`
+5. **完成庆祝**: 心愿完成、打卡成功时，触发 Confetti 或爱心飘洒动效（使用 canvas 或 css 动画）
+
+## 7. Components (组件指南)
+
+### Buttons
+
+**Primary (主按钮)**:
+- 背景: `bg-primary` (hsl 340 80% 65%)
+- 文字: `text-primary-foreground` (白色)
+- 圆角: `rounded-full`
+- 阴影: `shadow-md`
+- Hover: `hover:bg-[hsl(340,80%,60%)] hover:shadow-lg`
+- Active: `active:scale-95`
+- 内边距: `px-6 py-3`
+- 字重: `font-semibold`
+
+**Secondary (次要按钮)**:
+- 背景: `bg-surface`
+- 边框: `border-2 border-primary/20`
+- 文字: `text-primary`
+- 圆角: `rounded-full`
+- Hover: `hover:bg-accent hover:border-primary/40`
+
+**Ghost (幽灵按钮)**:
+- 背景: `transparent`
+- 文字: `text-foreground`
+- Hover: `hover:bg-accent`
+
+**Icon Button (图标按钮)**:
+- 尺寸: `h-10 w-10`
+- 圆角: `rounded-full`
+- Hover: `hover:bg-accent`
+
+### Cards
+
+**标准卡片**:
+- 背景: `bg-card`
+- 边框: `border border-border`
+- 圆角: `rounded-2xl`
+- 阴影: `shadow-sm`
+- 内边距: `p-6`
+- Hover: `hover:shadow-md hover:scale-[1.01] transition-all`
+
+**情感化卡片变体**（纪念日、心愿）:
+- 顶部添加 4px 彩色边框条 `border-t-4 border-t-primary`
+- 或左上角装饰小爱心图标
+
+### Form Elements
+
+**输入框**:
+- 背景: `bg-surface`
+- 边框: `border-2 border-border`
+- 圆角: `rounded-xl`
+- Focus: `focus:border-primary focus:ring-2 focus:ring-primary/20`
+- Placeholder: `text-muted-foreground`
+
+**文本域**（日记编辑器）:
+- 最小高度: `min-h-[200px]`
+- 圆角: `rounded-xl`
+- 字号: `text-base leading-relaxed`
+
+**选择器/下拉**:
+- 触发器: 同输入框样式
+- 下拉菜单: `rounded-xl shadow-lg border-border`
+
+**日期选择器**:
+- 使用自定义样式，选中日期 `bg-primary text-white rounded-full`
+
+### Tags/Badges (标签)
+
+**心情标签**:
+- 圆角: `rounded-full`
+- 尺寸: `px-3 py-1 text-sm`
+- 颜色变体:
+  - 开心: `bg-[hsl(45,90%,95%)] text-[hsl(45,80%,40%)]`
+  - 甜蜜: `bg-[hsl(340,80%,95%)] text-[hsl(340,70%,50%)]`
+  - 感动: `bg-[hsl(200,80%,95%)] text-[hsl(200,70%,50%)]`
+  - 吵架: `bg-[hsl(0,70%,95%)] text-[hsl(0,70%,50%)]`
+
+**状态标签**:
+- 待完成: `bg-muted text-muted-foreground`
+- 已完成: `bg-success-bg text-success`
+
+### Lists (列表)
+
+**日记列表项**:
+- 布局: 水平卡片，左侧缩略图或图标，右侧内容
+- 圆角: `rounded-xl`
+- Hover: `hover:bg-accent/50`
+
+**纪念日项**:
+- 左侧: 日期圆圈 `w-12 h-12 rounded-full bg-primary/10 text-primary`
+- 右侧: 标题 + 倒计时天数（大字突出）
+
+### Progress & Stats
+
+**进度环**（打卡完成度）:
+- 使用 Circular Progress
+- 主色: `stroke-primary`
+- 背景环: `stroke-border`
+- 线宽: 8px
+- 圆角: `stroke-linecap-round`
+
+**热力图**（打卡记录）:
+- 单元格: `w-3 h-3 rounded-sm`
+- 颜色深度表示强度，从 `bg-muted` 到 `bg-primary`
+
+## 8. Page Patterns (页面模式)
+
+### Home Page (恋爱首页)
+- **布局**: Dashboard 风格，多列网格
+- **顶部**: 恋爱天数大数字展示 + 情侣头像
+- **中部**: 快捷入口网格（2x3 图标按钮）
+- **底部**: 最近动态流（时间线样式）
+
+### List Pages (日记/纪念日/心愿列表)
+- **顶部**: 标题 + 新建按钮（右侧）
+- **筛选栏**: 日期筛选/标签筛选（ pill 形状标签）
+- **内容**: 卡片网格或列表
+- **空状态**: 插图 + 温馨文案 + 引导按钮
+
+### Detail Pages (详情页)
+- **头部**: 大图/封面（可选）+ 标题 + 元信息
+- **内容区**: 富文本内容或照片网格
+- **底部**: 操作按钮栏（编辑、删除、分享）
+
+### Form Pages (写日记/添加纪念日)
+- **布局**: 居中窄容器 `max-w-2xl`
+- **结构**: 分节表单，每节带标题
+- **底部**: 固定或 sticky 操作栏（保存/取消）
+
+## 9. Flexibility Note (灵活性说明)
+
+> **一致性优先原则**: 所有页面共享相同的核心参数（最大宽度 1400px、圆角系统、配色），确保整体设计语言统一。
+>
+> **允许的微调范围**:
+> - 响应式断点适配（移动端 Sidebar 变为抽屉，网格变为单列）
+> - 页面内部的局部间距（如表单页内边距可适当增加）
+> - 特定页面的装饰元素（如首页可增加更多装饰，列表页保持简洁）
+>
+> **禁止的随意变更**:
+> - ❌ 不同页面使用不同的最大宽度
+> - ❌ 不同页面使用不同的圆角/阴影风格
+> - ❌ 不同页面使用不同的主色调
+> - ❌ 未经用户要求切换到深色主题
+
+## 10. Signature & Constraints (设计签名与禁区)
+
+### DO (视觉签名)
+1. **爱心元素点缀**: 在重要标题旁、按钮内、空状态插图使用爱心图标 `<Heart className="w-4 h-4 text-primary" />`
+2. **圆角极端化**: 所有交互元素使用 pill 或超大圆角，拒绝尖锐直角
+3. **粉彩渐变背景**: 首页顶部使用粉到白的柔和渐变，代码: `bg-gradient-to-br from-[hsl(340,80%,96%)] to-[hsl(30,30%,98%)]`
+4. **悬浮阴影层次**: 重要卡片使用 `shadow-sm` 默认，`hover:shadow-md` 悬浮，增加物理层次感
+5. **情感化微交互**: 点击喜欢/收藏时，爱心图标有弹跳缩放动画 `scale-125 transition-transform`
+
+### DON'T (禁止做法)
+> 通用约束参见「通用约束」。以下为恋爱记录应用特有:
+- ❌ 使用冷色调（蓝、青、灰紫）作为主色，破坏温暖氛围
+- ❌ 使用尖锐直角（0px 圆角）或极小圆角（2px），与情感主题冲突
+- ❌ 使用纯黑 `text-black`，必须使用暖色调深灰 `text-foreground` (hsl 340 20% 25%)
+- ❌ 界面过于紧凑拥挤，必须保持充足留白营造呼吸感
+- ❌ 使用过于正式/商务的图标风格（如锐利的线条图标），应使用圆润填充图标
