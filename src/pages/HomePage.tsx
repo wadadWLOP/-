@@ -1,4 +1,4 @@
-import { Heart, Pencil } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 import { UpcomingAnniversaryCard, CoreFeaturesGrid } from '../components/UI';
 import { useState, useEffect } from 'react';
 
