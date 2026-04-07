@@ -511,16 +511,59 @@ export function DiaryWritePage() {
                 accept="image/*"
                 className="hidden"
                 id="photo-input"
-                onChange={(e) => {
+                onChange={async (e) => {
                   const file = e.target.files?.[0];
                   if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                      addFloatingElement('photo', { 
-                        src: event.target?.result as string
-                      });
-                    };
-                    reader.readAsDataURL(file);
+                    try {
+                      // 压缩图片
+                      const reader = new FileReader();
+                      reader.onload = async (event) => {
+                        const img = new Image();
+                        img.onload = async () => {
+                          const canvas = document.createElement('canvas');
+                          const ctx = canvas.getContext('2d');
+                          if (!ctx) return;
+                          
+                          // 压缩图片，最大宽度 800px
+                          const maxWidth = 800;
+                          const scale = Math.min(1, maxWidth / img.width);
+                          canvas.width = img.width * scale;
+                          canvas.height = img.height * scale;
+                          
+                          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                          const compressedBlob = await new Promise<Blob | null>((resolve) => {
+                            canvas.toBlob(resolve, 'image/jpeg', 0.8);
+                          });
+                          
+                          if (!compressedBlob) return;
+                          
+                          // 上传到 Vercel Blob
+                          const formData = new FormData();
+                          formData.append('file', compressedBlob, 'image.jpg');
+                          
+                          const response = await fetch('/api/upload', {
+                            method: 'POST',
+                            body: formData,
+                          });
+                          
+                          if (!response.ok) {
+                            throw new Error('Upload failed');
+                          }
+                          
+                          const data = await response.json();
+                          
+                          // 添加浮动元素
+                          addFloatingElement('photo', { 
+                            src: data.url
+                          });
+                        };
+                        img.src = event.target?.result as string;
+                      };
+                      reader.readAsDataURL(file);
+                    } catch (error) {
+                      console.error('Upload error:', error);
+                      alert('图片上传失败，请重试');
+                    }
                   }
                   e.target.value = '';
                 }}
