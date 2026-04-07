@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Cloud, Sun, CloudRain, CloudSnow, Image, Pencil, Sticker } from 'lucide-react';
+import { supabase, uploadImage } from '../lib/supabase';
 
 const weatherIcons: Record<string, React.ReactNode> = {
   sunny: <Sun className="w-5 h-5 text-yellow-500" />,
@@ -64,6 +65,28 @@ export function DiaryWritePage() {
     const timer = setTimeout(() => setIsEntryAnimating(false), 800);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    const loadDiary = async () => {
+      const { data, error } = await supabase
+        .from('diaries')
+        .select('*')
+        .eq('date', dateParam)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error loading diary:', error);
+        return;
+      }
+
+      if (data) {
+        setPages([{ leftContent: data.left_content || '', rightContent: data.right_content || '' }]);
+        setWeather(data.weather || 'sunny');
+        setFloatingElements(data.floating_elements || []);
+      }
+    };
+    loadDiary();
+  }, [dateParam]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -236,7 +259,24 @@ export function DiaryWritePage() {
     }
   };
 
-  const handleBack = () => {
+  const handleBack = async () => {
+    const diaryData = {
+      date: dateParam,
+      left_content: pages[0]?.leftContent || '',
+      right_content: pages[0]?.rightContent || '',
+      weather,
+      floating_elements: floatingElements,
+      updated_at: new Date().toISOString()
+    };
+
+    const { error } = await supabase
+      .from('diaries')
+      .upsert(diaryData);
+
+    if (error) {
+      console.error('Error saving diary:', error);
+    }
+
     navigate('/diary');
   };
 
@@ -515,53 +555,10 @@ export function DiaryWritePage() {
                   const file = e.target.files?.[0];
                   if (file) {
                     try {
-                      // 压缩图片
-                      const reader = new FileReader();
-                      reader.onload = async (event) => {
-                        const img = new Image();
-                        img.onload = async () => {
-                          const canvas = document.createElement('canvas');
-                          const ctx = canvas.getContext('2d');
-                          if (!ctx) return;
-                          
-                          // 压缩图片，最大宽度 800px
-                          const maxWidth = 800;
-                          const scale = Math.min(1, maxWidth / img.width);
-                          canvas.width = img.width * scale;
-                          canvas.height = img.height * scale;
-                          
-                          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                          const compressedBlob = await new Promise<Blob | null>((resolve) => {
-                            canvas.toBlob(resolve, 'image/jpeg', 0.8);
-                          });
-                          
-                          if (!compressedBlob) return;
-                          
-                          // 上传到 Vercel Blob
-                          const formData = new FormData();
-                          formData.append('file', compressedBlob, 'image.jpg');
-                          
-                          const response = await fetch('/api/upload', {
-                            method: 'POST',
-                            body: formData,
-                          });
-                          
-                          if (!response.ok) {
-                            throw new Error('Upload failed');
-                          }
-                          
-                          const data = await response.json();
-                          
-                          // 添加浮动元素
-                          addFloatingElement('photo', { 
-                            src: data.url
-                          });
-                        };
-                        img.src = event.target?.result as string;
-                      };
-                      reader.readAsDataURL(file);
+                      const imageUrl = await uploadImage(file);
+                      addFloatingElement('photo', { src: imageUrl });
                     } catch (error) {
-                      console.error('Upload error:', error);
+                      console.error('Failed to upload image:', error);
                       alert('图片上传失败，请重试');
                     }
                   }
