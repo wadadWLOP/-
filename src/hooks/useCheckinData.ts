@@ -111,7 +111,7 @@ export function useCheckinData() {
       .eq('id', itemId);
 
     if (error) {
-      console.error('❌ Update error:', error);
+      console.error('❌ Update error:', JSON.stringify(error, null, 2));
       throw error;
     }
     
@@ -119,7 +119,7 @@ export function useCheckinData() {
   }
 
   async function addCheckinRecord(record: Omit<CheckinRecord, 'id' | 'created_at'>) {
-    console.log('📝 Adding checkin record:', record);
+    console.log('📝 Adding checkin record:', JSON.stringify(record, null, 2));
     
     const { data, error } = await supabase
       .from('checkin_records')
@@ -127,7 +127,7 @@ export function useCheckinData() {
       .select();
 
     if (error) {
-      console.error('❌ Add record error:', error);
+      console.error('❌ Add record error:', JSON.stringify(error, null, 2));
       throw error;
     }
     
