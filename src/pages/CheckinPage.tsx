@@ -42,7 +42,7 @@ export function CheckinPage() {
   const [showStamp, setShowStamp] = useState(false);
   const [lastCheckinItem, setLastCheckinItem] = useState<typeof checkinItems[0] | null>(null);
   const [pendingCheckin, setPendingCheckin] = useState<typeof checkinItems[0] | null>(null);
-  const [selectedRecord, setSelectedRecord] = useState<{ item: typeof checkinItems[0]; date: string; evidence?: string } | null>(null);
+  const [selectedRecord, setSelectedRecord] = useState<typeof records[0] | null>(null);
 
   const quickTags = ['#路痴发作', '#脑子短路', '#嘴硬王者', '#贪吃鬼', '#小迷糊'];
   const placeholders = ['老实交代，今天怎么犯迷糊了？', '比如：走路撞到了电线杆...', '比如：把盐当成糖放了...'];
@@ -394,15 +394,15 @@ export function CheckinPage() {
 
             <div className="text-center mb-4">
               <div className="text-5xl mb-2">
-                {selectedRecord.item.id === 1 ? (
+                {selectedRecord.item_id === '1' ? (
                   <img src="https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/12.png" alt="" className="w-20 h-20 object-contain mx-auto" />
-                ) : selectedRecord.item.id === 2 ? (
+                ) : selectedRecord.item_id === '2' ? (
                   <img src="https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/13.png" alt="" className="w-20 h-20 object-contain mx-auto" />
                 ) : (
-                  selectedRecord.item.emoji
+                  selectedRecord.item_emoji
                 )}
               </div>
-              <div className="text-lg font-bold" style={{ color: '#8B4513' }}>{selectedRecord.item.title}</div>
+              <div className="text-lg font-bold" style={{ color: '#8B4513' }}>{selectedRecord.item_name}</div>
               <div className="text-sm text-gray-400 mt-1">{selectedRecord.date}</div>
             </div>
 
