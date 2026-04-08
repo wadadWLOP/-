@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Plus, Calendar, Clock, Repeat, MoreHorizontal, Pencil, Trash2, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Badge, Button, EmptyState, FloatingCalendar } from '../components/UI';
