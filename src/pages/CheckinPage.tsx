@@ -241,7 +241,7 @@ export function CheckinPage() {
                 {animatedCount}
               </div>
               {(() => {
-                const relatedRecords = records.filter(r => r.item.id === selectedItem.id && r.evidence);
+                const relatedRecords = records.filter(r => r.item_id === selectedItem.id && r.evidence);
                 if (relatedRecords.length > 0) {
                   const randomRecord = relatedRecords[Math.floor(Math.random() * relatedRecords.length)];
                   return <div className="text-sm px-4 py-2 rounded-full inline-block mb-4 bg-pink-100 text-gray-600" style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{randomRecord.evidence}</div>;
@@ -289,15 +289,15 @@ export function CheckinPage() {
                       style={{ transform: `rotate(${Math.random() * 6 - 3}deg)` }}
                     >
                       <div className="text-2xl mb-1">
-                        {record.item.id === 1 ? (
+                        {record.item_id === 1 ? (
                           <img src="https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/12.png" alt="" className="w-10 h-10 object-contain inline-block" />
-                        ) : record.item.id === 2 ? (
+                        ) : record.item_id === 2 ? (
                           <img src="https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/13.png" alt="" className="w-10 h-10 object-contain inline-block" />
                         ) : (
-                          record.item.emoji
+                          record.item_emoji
                         )}
                       </div>
-                      <div className="text-xs font-bold" style={{ color: '#8B4513' }}>{record.item.title}</div>
+                      <div className="text-xs font-bold" style={{ color: '#8B4513' }}>{record.item_name}</div>
                       {record.evidence && (
                         <div className="mt-1 px-2 py-0.5 bg-pink-100 rounded-full text-xs text-gray-600 truncate">{record.evidence}</div>
                       )}
