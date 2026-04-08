@@ -5,28 +5,28 @@ const coreFeatures = [
     title: '一起看',
     subtitle: '一起看过的有趣和无趣',
     path: '/diary',
-    img: 'https://xxrbtbeehmfmtpkyahwg.supabase.co/storage/v1/object/public/diary-images/4.jpg',
+    img: 'https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/4.jpg',
     fallback: '📝',
   },
   {
     title: '笨蛋大王',
     subtitle: '秋秋和果汁都是笨蛋',
     path: '/checkin',
-    img: 'https://xxrbtbeehmfmtpkyahwg.supabase.co/storage/v1/object/public/diary-images/5.jpg',
+    img: 'https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/5.jpg',
     fallback: '🎀',
   },
   {
     title: '贪吃大王',
     subtitle: '吃吃吃',
     path: '/wish',
-    img: 'https://xxrbtbeehmfmtpkyahwg.supabase.co/storage/v1/object/public/diary-images/6.jpg',
+    img: 'https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/6.jpg',
     fallback: '✨',
   },
   {
     title: '添加照片',
     subtitle: '珍藏的时光',
     path: '/album',
-    img: 'https://xxrbtbeehmfmtpkyahwg.supabase.co/storage/v1/object/public/diary-images/7.jpg',
+    img: 'https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/7.jpg',
     fallback: '🖼️',
   },
 ];
@@ -37,7 +37,7 @@ const bannerFeatures = [
     subtitle: '设置温馨提醒，不错过每一个重要日子',
     path: '/anniversary/add',
     color: 'from-pink-300 to-rose-400',
-    img: 'https://xxrbtbeehmfmtpkyahwg.supabase.co/storage/v1/object/public/diary-images/8.jpg',
+    img: 'https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/8.jpg',
     text: '喜欢、爱和小鱼干',
   },
   {
@@ -45,7 +45,7 @@ const bannerFeatures = [
     subtitle: '记录你们的每一个幸福瞬间',
     path: '/diary',
     color: 'from-amber-300 to-orange-400',
-    img: 'https://xxrbtbeehmfmtpkyahwg.supabase.co/storage/v1/object/public/diary-images/9.jpg',
+    img: 'https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/9.jpg',
     text: '乌青色染雨霖抚琴拦雨停',
   },
 ];
@@ -122,7 +122,7 @@ export function CoreFeaturesGrid() {
           style={{ minHeight: '320px' }}
         >
           <img
-            src="https://xxrbtbeehmfmtpkyahwg.supabase.co/storage/v1/object/public/diary-images/10.jpg"
+            src="https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/10.jpg"
             alt=""
             className="absolute left-3 top-12 w-[432px] h-56 object-cover border-2 border-black"
             style={{ transform: 'rotate(-3deg)', boxShadow: '10px 10px 20px rgba(0,0,0,0.5)' }}
