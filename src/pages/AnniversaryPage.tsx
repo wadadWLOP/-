@@ -9,7 +9,6 @@ interface AnniversaryItem {
   title: string;
   date: string;
   description?: string;
-  isRecurring: boolean;
 }
 
 export function AnniversaryPage() {
@@ -52,24 +51,11 @@ export function AnniversaryPage() {
     let displayText: string;
     let yearsAgo = 0;
 
-    if (anniversary.isRecurring) {
-      const nextOccurrence = new Date(anniversary.date);
-      nextOccurrence.setFullYear(today.getFullYear());
-      if (nextOccurrence < today) {
-        nextOccurrence.setFullYear(today.getFullYear() + 1);
-      }
-      if (isPast) {
-        displayText = `过去了${Math.abs(days)}天`;
-      } else {
-        displayText = days === 0 ? '今天' : `剩余 ${days} 天`;
-      }
+    if (isPast) {
+      yearsAgo = Math.abs(days);
+      displayText = `过去了${yearsAgo}天`;
     } else {
-      if (isPast) {
-        yearsAgo = Math.abs(days);
-        displayText = `过去了${yearsAgo}天`;
-      } else {
-        displayText = days === 0 ? '今天' : `剩余 ${days} 天`;
-      }
+      displayText = days === 0 ? '今天' : `剩余 ${days} 天`;
     }
 
     return {

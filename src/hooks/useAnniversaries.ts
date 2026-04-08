@@ -6,7 +6,6 @@ interface Anniversary {
   title: string;
   date: string;
   description?: string;
-  is_recurring: boolean;
   created_at?: string;
   updated_at?: string;
 }

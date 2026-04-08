@@ -7,7 +7,6 @@ interface AnniversaryItem {
   id: string;
   title: string;
   date: string;
-  isRecurring: boolean;
 }
 
 interface UpcomingAnniversaryCardProps {

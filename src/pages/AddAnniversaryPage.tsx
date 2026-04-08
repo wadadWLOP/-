@@ -64,7 +64,6 @@ export function AddAnniversaryPage() {
       title,
       date: formatDateToLocal(selectedDate),
       description: type,
-      is_recurring: isRecurring,
     });
     
     try {
@@ -74,7 +73,6 @@ export function AddAnniversaryPage() {
           title,
           date: formatDateToLocal(selectedDate),
           description: type || undefined,
-          is_recurring: isRecurring,
         }])
         .select();
       
