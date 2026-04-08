@@ -1,15 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Inter:wght@400;500;600&family=Nunito:wght@600;700&family=Permanent+Marker&family=Bubblegum+Sans&family=Architects+Daughter&family=Gloria+Hallelujah&family=Patrick+Hand&family=ZCOOL+XiaoWei&display=swap');
 
 @font-face {
-  font-family: '奶泡';
-  src: url('/fonts/奶泡.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
   font-family: '乐米小奶泡体';
-  src: url('/fonts/乐米小奶泡体.ttf') format('truetype');
+  src: url('https://xxrbtbeehmfmtpkyahwg.supabase.co/storage/v1/object/public/diary-images/lemit.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
@@ -61,7 +54,7 @@
 }
 
 body {
-  font-family: '奶泡', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-family: '乐米小奶泡体', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   background: linear-gradient(135deg, #1a2a4a 0%, #0d1520 50%, #1a2a4a 100%);
   color: var(--foreground);
   min-height: 100vh;
@@ -95,19 +88,19 @@ body::after {
 }
 
 .font-heading {
-  font-family: '奶泡', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-family: '乐米小奶泡体', 'PingFang SC', 'Microsoft YaHei', sans-serif;
 }
 
 .font-body {
-  font-family: '奶泡', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-family: '乐米小奶泡体', 'PingFang SC', 'Microsoft YaHei', sans-serif;
 }
 
 .font-handwritten {
-  font-family: '奶泡', cursive;
+  font-family: '乐米小奶泡体', cursive;
 }
 
 .font-diary {
-  font-family: '奶泡', cursive;
+  font-family: '乐米小奶泡体', cursive;
 }
 
 .bg-paper {
