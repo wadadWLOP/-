@@ -140,7 +140,7 @@ function DraggableCat({ framePrefix, initialLeft, initialTop, onRemove, catId }:
       {showClose && (
         <button onClick={handleClose} className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs hover:bg-red-600 z-10">×</button>
       )}
-      <img src={`/max/${framePrefix}${frameNum}.png`} alt={framePrefix} className="w-20 h-20 object-contain pointer-events-none" draggable={false} />
+      <img src={`https://xxrbtbeehmfmtpkyahwg.supabase.co/storage/v1/object/public/diary-images/${framePrefix}${frameNum}.png`} alt={framePrefix} className="w-20 h-20 object-contain pointer-events-none" draggable={false} />
     </div>
   );
 }
@@ -306,7 +306,7 @@ export function GlobalCatMenu() {
           className="w-14 h-14 rounded-full shadow-lg hover:scale-110 transition-transform z-10 overflow-hidden"
           style={{ position: 'absolute', left: centerX, top: centerY, transform: 'translate(-50%, -50%)' }}
         >
-          <img src="/3.jpg" alt="cat menu" className="w-full h-full object-cover" />
+          <img src="https://xxrbtbeehmfmtpkyahwg.supabase.co/storage/v1/object/public/diary-images/3-1775627139891.jpg" alt="cat menu" className="w-full h-full object-cover" />
         </button>
       </div>
       <style>{`

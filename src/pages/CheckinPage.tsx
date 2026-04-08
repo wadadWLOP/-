@@ -183,9 +183,9 @@ export function CheckinPage() {
               <div className={`absolute inset-0 rounded-3xl bg-gradient-to-br ${categoryColors[item.category]} opacity-10`} />
               <div className="text-4xl mb-2 relative z-10 mt-8">
                 {item.id === 1 ? (
-                  <img src="/image/12.png" alt="" className="w-16 h-16 object-contain mx-auto" />
+                  <img src="https://xxrbtbeehmfmtpkyahwg.supabase.co/storage/v1/object/public/diary-images/12-1775627139428.png" alt="" className="w-16 h-16 object-contain mx-auto" />
                 ) : item.id === 2 ? (
-                  <img src="/image/13.png" alt="" className="w-16 h-16 object-contain mx-auto" />
+                  <img src="https://xxrbtbeehmfmtpkyahwg.supabase.co/storage/v1/object/public/diary-images/13-1775627139654.png" alt="" className="w-16 h-16 object-contain mx-auto" />
                 ) : ''}
               </div>
               <div className="text-lg font-bold mb-1" style={{ color: '#8B4513' }}>{item.title}</div>
@@ -221,9 +221,9 @@ export function CheckinPage() {
 
             <div className="text-center">
               {selectedItem.id === 1 ? (
-                <img src="/image/12.png" alt="" className="text-6xl mb-4 w-20 h-20 object-contain mx-auto" />
+                <img src="https://xxrbtbeehmfmtpkyahwg.supabase.co/storage/v1/object/public/diary-images/12-1775627139428.png" alt="" className="text-6xl mb-4 w-20 h-20 object-contain mx-auto" />
               ) : selectedItem.id === 2 ? (
-                <img src="/image/13.png" alt="" className="text-6xl mb-4 w-20 h-20 object-contain mx-auto" />
+                <img src="https://xxrbtbeehmfmtpkyahwg.supabase.co/storage/v1/object/public/diary-images/13-1775627139654.png" alt="" className="text-6xl mb-4 w-20 h-20 object-contain mx-auto" />
               ) : (
                 <div className="text-6xl mb-4">{selectedItem.emoji}</div>
               )}
@@ -281,9 +281,9 @@ export function CheckinPage() {
                     >
                       <div className="text-2xl mb-1">
                         {record.item.id === 1 ? (
-                          <img src="/image/12.png" alt="" className="w-10 h-10 object-contain inline-block" />
+                          <img src="https://xxrbtbeehmfmtpkyahwg.supabase.co/storage/v1/object/public/diary-images/12-1775627139428.png" alt="" className="w-10 h-10 object-contain inline-block" />
                         ) : record.item.id === 2 ? (
-                          <img src="/image/13.png" alt="" className="w-10 h-10 object-contain inline-block" />
+                          <img src="https://xxrbtbeehmfmtpkyahwg.supabase.co/storage/v1/object/public/diary-images/13-1775627139654.png" alt="" className="w-10 h-10 object-contain inline-block" />
                         ) : (
                           record.item.emoji
                         )}
@@ -386,9 +386,9 @@ export function CheckinPage() {
             <div className="text-center mb-4">
               <div className="text-5xl mb-2">
                 {selectedRecord.item.id === 1 ? (
-                  <img src="/image/12.png" alt="" className="w-20 h-20 object-contain mx-auto" />
+                  <img src="https://xxrbtbeehmfmtpkyahwg.supabase.co/storage/v1/object/public/diary-images/12-1775627139428.png" alt="" className="w-20 h-20 object-contain mx-auto" />
                 ) : selectedRecord.item.id === 2 ? (
-                  <img src="/image/13.png" alt="" className="w-20 h-20 object-contain mx-auto" />
+                  <img src="https://xxrbtbeehmfmtpkyahwg.supabase.co/storage/v1/object/public/diary-images/13-1775627139654.png" alt="" className="w-20 h-20 object-contain mx-auto" />
                 ) : (
                   selectedRecord.item.emoji
                 )}
