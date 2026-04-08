@@ -289,9 +289,9 @@ export function CheckinPage() {
                       style={{ transform: `rotate(${Math.random() * 6 - 3}deg)` }}
                     >
                       <div className="text-2xl mb-1">
-                        {record.item_id === 1 ? (
+                        {record.item_id === '1' ? (
                           <img src="https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/12.png" alt="" className="w-10 h-10 object-contain inline-block" />
-                        ) : record.item_id === 2 ? (
+                        ) : record.item_id === '2' ? (
                           <img src="https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/13.png" alt="" className="w-10 h-10 object-contain inline-block" />
                         ) : (
                           record.item_emoji
