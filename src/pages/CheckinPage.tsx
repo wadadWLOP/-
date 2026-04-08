@@ -269,12 +269,13 @@ export function CheckinPage() {
               {(() => {
                 const relatedRecords = records.filter(r => r.item_id === selectedItem.id && r.evidence);
                 if (relatedRecords.length > 0) {
+                  const displayEvidence = relatedRecords[displayEvidenceIndex]?.evidence || randomComments[Math.floor(Math.random() * randomComments.length)];
                   return (
                     <div 
                       className={`text-sm px-4 py-2 rounded-full inline-block mb-4 bg-pink-100 text-gray-600 transition-all duration-300 ${isEvidenceAnimating ? 'opacity-50 scale-95' : 'opacity-100 scale-100'}`}
                       style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                     >
-                      {relatedRecords[displayEvidenceIndex]?.evidence || randomComments[Math.floor(Math.random() * randomComments.length)]}
+                      {displayEvidence}
                     </div>
                   );
                 }
