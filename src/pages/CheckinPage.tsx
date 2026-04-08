@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Image, X } from 'lucide-react';
+import { useCheckinData } from '../hooks/useCheckinData';
 
 const checkinItems = [
   { id: 1, emoji: '☀️', title: '笨蛋秋秋', count: 0, category: 'daily' },
@@ -35,11 +36,7 @@ export function CheckinPage() {
   const [showHistory, setShowHistory] = useState(false);
   const [animatedCount, setAnimatedCount] = useState(0);
   const [clickScale, setClickScale] = useState(false);
-  const [records, setRecords] = useState<{ item: typeof checkinItems[0]; date: string; evidence?: string }[]>([]);
-  const [checkinData, setCheckinData] = useState(() => {
-    const saved = localStorage.getItem('checkin_data');
-    return saved ? JSON.parse(saved) : checkinItems;
-  });
+  const { checkinData, records, loading, updateCheckinCount, addCheckinRecord } = useCheckinData();
   const [showEvidence, setShowEvidence] = useState(false);
   const [evidenceText, setEvidenceText] = useState('');
   const [showStamp, setShowStamp] = useState(false);
@@ -50,10 +47,16 @@ export function CheckinPage() {
   const quickTags = ['#路痴发作', '#脑子短路', '#嘴硬王者', '#贪吃鬼', '#小迷糊'];
   const placeholders = ['老实交代，今天怎么犯迷糊了？', '比如：走路撞到了电线杆...', '比如：把盐当成糖放了...'];
 
-  useEffect(() => {
-    const saved = localStorage.getItem('checkin_records');
-    if (saved) setRecords(JSON.parse(saved));
-  }, []);
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin text-4xl mb-4">⏳</div>
+          <p className="text-[#9A8B7A]">加载中...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleCheckin = (item: typeof checkinItems[0]) => {
     setSelectedItem(item);
@@ -86,44 +89,50 @@ export function CheckinPage() {
     setSelectedItem(null);
   };
 
-  const submitEvidence = () => {
+  const submitEvidence = async () => {
     if (evidenceText.trim() && pendingCheckin) {
-      const currentItem = checkinData.find((i: typeof checkinItems[0]) => i.id === pendingCheckin.id);
-      const target = (currentItem?.count || 0) + 1;
+      try {
+        const currentItem = checkinData.find((i: typeof checkinItems[0]) => i.id === pendingCheckin.id);
+        const target = (currentItem?.count || 0) + 1;
 
-      const updatedData = checkinData.map((i: typeof checkinItems[0]) =>
-        i.id === pendingCheckin.id ? { ...i, count: target } : i
-      );
-      setCheckinData(updatedData);
-      localStorage.setItem('checkin_data', JSON.stringify(updatedData));
+        // 更新计数
+        await updateCheckinCount(pendingCheckin.id, target);
 
-      setAnimatedCount(0);
-      let count = 0;
-      const interval = setInterval(() => {
-        count += Math.ceil((target - count) / 5);
-        if (count >= target) {
-          count = target;
-          clearInterval(interval);
-        }
-        setAnimatedCount(count);
-      }, 50);
+        setAnimatedCount(0);
+        let count = 0;
+        const interval = setInterval(() => {
+          count += Math.ceil((target - count) / 5);
+          if (count >= target) {
+            count = target;
+            clearInterval(interval);
+          }
+          setAnimatedCount(count);
+        }, 50);
 
-      const newRecord = { item: { ...pendingCheckin, count: target }, date: new Date().toLocaleString('zh-CN'), evidence: evidenceText };
-      const newRecords = [newRecord, ...records].slice(0, 50);
-      setRecords(newRecords);
-      localStorage.setItem('checkin_records', JSON.stringify(newRecords));
+        // 添加记录
+        await addCheckinRecord({
+          item_id: pendingCheckin.id,
+          item_title: pendingCheckin.title,
+          item_emoji: pendingCheckin.emoji,
+          date: new Date().toLocaleString('zh-CN'),
+          evidence: evidenceText,
+        });
 
-      setShowStamp(true);
-      setTimeout(() => {
-        setShowStamp(false);
-        setShowPolaroid(false);
-        setShowEvidence(false);
-        setEvidenceText('');
-        setPendingCheckin(null);
-        setLastCheckinItem(null);
-        setSelectedItem(null);
-        setShowHistory(true);
-      }, 1500);
+        setShowStamp(true);
+        setTimeout(() => {
+          setShowStamp(false);
+          setShowPolaroid(false);
+          setShowEvidence(false);
+          setEvidenceText('');
+          setPendingCheckin(null);
+          setLastCheckinItem(null);
+          setSelectedItem(null);
+          setShowHistory(true);
+        }, 1500);
+      } catch (error) {
+        console.error('Failed to submit checkin:', error);
+        alert('提交失败，请重试');
+      }
     }
   };
 
