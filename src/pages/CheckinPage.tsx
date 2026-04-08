@@ -43,8 +43,6 @@ export function CheckinPage() {
   const [lastCheckinItem, setLastCheckinItem] = useState<typeof checkinItems[0] | null>(null);
   const [pendingCheckin, setPendingCheckin] = useState<typeof checkinItems[0] | null>(null);
   const [selectedRecord, setSelectedRecord] = useState<typeof records[0] | null>(null);
-  const [displayEvidenceIndex, setDisplayEvidenceIndex] = useState(0);
-  const [isEvidenceAnimating, setIsEvidenceAnimating] = useState(false);
 
   const quickTags = ['#路痴发作', '#脑子短路', '#嘴硬王者', '#贪吃鬼', '#小迷糊'];
   const placeholders = ['老实交代，今天怎么犯迷糊了？', '比如：走路撞到了电线杆...', '比如：把盐当成糖放了...'];
@@ -90,30 +88,6 @@ export function CheckinPage() {
     }
     setSelectedItem(null);
   };
-
-  // 处理证据滚动显示
-  useEffect(() => {
-    if (showPolaroid && selectedItem) {
-      const relatedRecords = records.filter(r => r.item_id === selectedItem.id && r.evidence);
-      if (relatedRecords.length > 1) {
-        setIsEvidenceAnimating(true);
-        let currentIndex = 0;
-        const interval = setInterval(() => {
-          currentIndex = (currentIndex + 1) % relatedRecords.length;
-          setDisplayEvidenceIndex(currentIndex);
-        }, 300);
-
-        setTimeout(() => {
-          clearInterval(interval);
-          setIsEvidenceAnimating(false);
-          const finalIndex = Math.floor(Math.random() * relatedRecords.length);
-          setDisplayEvidenceIndex(finalIndex);
-        }, 2000);
-      } else if (relatedRecords.length === 1) {
-        setDisplayEvidenceIndex(0);
-      }
-    }
-  }, [showPolaroid, selectedItem?.id]);
 
   const submitEvidence = async () => {
     if (evidenceText.trim() && pendingCheckin) {
@@ -269,15 +243,8 @@ export function CheckinPage() {
               {(() => {
                 const relatedRecords = records.filter(r => r.item_id === selectedItem.id && r.evidence);
                 if (relatedRecords.length > 0) {
-                  const displayEvidence = relatedRecords[displayEvidenceIndex]?.evidence || randomComments[Math.floor(Math.random() * randomComments.length)];
-                  return (
-                    <div 
-                      className={`text-sm px-4 py-2 rounded-full inline-block mb-4 bg-pink-100 text-gray-600 transition-all duration-300 ${isEvidenceAnimating ? 'opacity-50 scale-95' : 'opacity-100 scale-100'}`}
-                      style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                    >
-                      {displayEvidence}
-                    </div>
-                  );
+                  const randomRecord = relatedRecords[Math.floor(Math.random() * relatedRecords.length)];
+                  return <div className="text-sm px-4 py-2 rounded-full inline-block mb-4 bg-pink-100 text-gray-600" style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{randomRecord.evidence}</div>;
                 }
                 return <div className="text-sm px-4 py-2 rounded-full inline-block mb-4" style={{ backgroundColor: '#FFF0F5', color: '#DB7093' }}>{randomComments[Math.floor(Math.random() * randomComments.length)]}</div>;
               })()}
