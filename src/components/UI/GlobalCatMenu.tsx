@@ -306,7 +306,7 @@ export function GlobalCatMenu() {
           className="w-14 h-14 rounded-full shadow-lg hover:scale-110 transition-transform z-10 overflow-hidden"
           style={{ position: 'absolute', left: centerX, top: centerY, transform: 'translate(-50%, -50%)' }}
         >
-          <img src="https://xxrbtbeehmfmtpkyahwg.supabase.co/storage/v1/object/public/diary-images/3-1775627139891.jpg" alt="cat menu" className="w-full h-full object-cover" />
+          <img src="https://xxrbtbeehmfmtpkyahwg.supabase.co/storage/v1/object/public/diary-images/3.jpg" alt="cat menu" className="w-full h-full object-cover" />
         </button>
       </div>
       <style>{`

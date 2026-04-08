@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 function LeftAvatar() {
   return (
     <div className="w-28 h-28 rounded-full border-2 border-[#8B7355]/60 bg-[#FFF0D0] flex items-center justify-center shadow-md overflow-hidden">
-      <img src="https://xxrbtbeehmfmtpkyahwg.supabase.co/storage/v1/object/public/diary-images/1-1775578079815.jpg" alt="头像" className="w-full h-full object-cover rounded-full" />
+      <img src="https://xxrbtbeehmfmtpkyahwg.supabase.co/storage/v1/object/public/diary-images/1.jpg" alt="头像" className="w-full h-full object-cover rounded-full" />
     </div>
   );
 }
