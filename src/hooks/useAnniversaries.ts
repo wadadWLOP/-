@@ -62,6 +62,8 @@ export function useAnniversaries() {
 
   async function loadInitialData() {
     try {
+      console.log('📥 Loading anniversaries...');
+      
       // 加载纪念日
       const { data: annData, error: annError } = await supabase
         .from('anniversaries')
@@ -73,14 +75,21 @@ export function useAnniversaries() {
         .from('deleted_anniversaries')
         .select('id');
 
-      if (annError) throw annError;
-      if (delError) throw delError;
+      if (annError) {
+        console.error('❌ Error loading anniversaries:', annError);
+        throw annError;
+      }
+      if (delError) {
+        console.error('❌ Error loading deleted IDs:', delError);
+        throw delError;
+      }
 
+      console.log('✅ Loaded', annData?.length || 0, 'anniversaries');
       setAnniversaries(annData || []);
       setDeletedIds(delData?.map(d => d.id) || []);
       setLoading(false);
     } catch (error) {
-      console.error('Error loading annivers:', error);
+      console.error('❌ Error in loadInitialData:', error);
       setLoading(false);
     }
   }
