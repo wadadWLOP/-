@@ -123,7 +123,13 @@ export function useCheckinData() {
     
     const { data, error } = await supabase
       .from('checkin_records')
-      .insert([record])
+      .insert({
+        item_id: record.item_id,
+        item_title: record.item_title,
+        item_emoji: record.item_emoji,
+        date: record.date,
+        evidence: record.evidence || null,
+      })
       .select();
 
     if (error) {
