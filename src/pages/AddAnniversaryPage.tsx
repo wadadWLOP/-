@@ -60,20 +60,39 @@ export function AddAnniversaryPage() {
 
     const handleConfirm = async () => {
     setToast(true);
+    console.log('📝 Creating anniversary:', {
+      title,
+      date: formatDateToLocal(selectedDate),
+      description: type,
+      icon: anniversaryTypes.find(t => t.label === type)?.icon,
+      is_recurring: isRecurring,
+    });
+    
     try {
-      await supabase.from('anniversaries').insert([{
-        title,
-        date: formatDateToLocal(selectedDate),
-        description: type || undefined,
-        icon: anniversaryTypes.find(t => t.label === type)?.icon || '📅',
-        is_recurring: isRecurring,
-      }]);
-    } catch (error) {
+      const { data, error } = await supabase
+        .from('anniversaries')
+        .insert([{
+          title,
+          date: formatDateToLocal(selectedDate),
+          description: type || undefined,
+          icon: anniversaryTypes.find(t => t.label === type)?.icon || '📅',
+          is_recurring: isRecurring,
+        }])
+        .select();
+      
+      if (error) {
+        console.error('❌ Supabase error:', error);
+        throw error;
+      }
+      
+      console.log('✅ Anniversary created:', data);
+    } catch (error: any) {
       console.error('Failed to add anniversary:', error);
-      alert('添加失败，请重试');
+      alert('添加失败：' + (error.message || '请重试'));
       setToast(false);
       return;
     }
+    
     setTimeout(() => {
       setToast(false);
       navigate('/anniversary');
