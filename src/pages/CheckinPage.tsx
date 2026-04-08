@@ -113,7 +113,7 @@ export function CheckinPage() {
         setDisplayEvidenceIndex(0);
       }
     }
-  }, [showPolaroid, selectedItem, records]);
+  }, [showPolaroid, selectedItem?.id]);
 
   const submitEvidence = async () => {
     if (evidenceText.trim() && pendingCheckin) {
