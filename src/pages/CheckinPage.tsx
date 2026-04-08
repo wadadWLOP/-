@@ -112,7 +112,7 @@ export function CheckinPage() {
         // 添加记录
         await addCheckinRecord({
           item_id: pendingCheckin.id,
-          item_title: pendingCheckin.title,
+          item_name: pendingCheckin.title,
           item_emoji: pendingCheckin.emoji,
           date: new Date().toLocaleString('zh-CN'),
           evidence: evidenceText,

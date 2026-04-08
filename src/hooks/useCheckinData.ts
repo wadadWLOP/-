@@ -12,7 +12,7 @@ interface CheckinItem {
 interface CheckinRecord {
   id?: number;
   item_id: number;
-  item_title: string;
+  item_name: string;
   item_emoji: string;
   date: string;
   evidence?: string;
@@ -125,7 +125,7 @@ export function useCheckinData() {
       .from('checkin_records')
       .insert({
         item_id: record.item_id,
-        item_title: record.item_title,
+        item_name: record.item_name,
         item_emoji: record.item_emoji,
         date: record.date,
         evidence: record.evidence || null,
