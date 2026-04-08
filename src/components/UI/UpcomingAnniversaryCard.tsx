@@ -7,7 +7,6 @@ interface AnniversaryItem {
   id: string;
   title: string;
   date: string;
-  icon: string;
   isRecurring: boolean;
 }
 

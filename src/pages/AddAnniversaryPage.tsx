@@ -64,7 +64,6 @@ export function AddAnniversaryPage() {
       title,
       date: formatDateToLocal(selectedDate),
       description: type,
-      icon: anniversaryTypes.find(t => t.label === type)?.icon,
       is_recurring: isRecurring,
     });
     
@@ -75,7 +74,6 @@ export function AddAnniversaryPage() {
           title,
           date: formatDateToLocal(selectedDate),
           description: type || undefined,
-          icon: anniversaryTypes.find(t => t.label === type)?.icon || '📅',
           is_recurring: isRecurring,
         }])
         .select();
