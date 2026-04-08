@@ -47,10 +47,10 @@ async function uploadFont() {
   }
 
   console.log('📁 上传字体文件...');
-  await uploadFile(fontPath, 'lemit.ttf');
+  await uploadFile(fontPath, '乐米小奶泡体.ttf');
 
   console.log('\n✅ 字体上传完成！\n');
-  console.log(`📋 字体 URL: https://${cosDomain}/lemit.ttf`);
+  console.log(`📋 字体 URL: https://${cosDomain}/乐米小奶泡体.ttf`);
 }
 
 uploadFont().catch(console.error);
