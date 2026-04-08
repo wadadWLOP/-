@@ -10,14 +10,8 @@ interface Anniversary {
   updated_at?: string;
 }
 
-interface DeletedAnniversary {
-  id: string;
-  deleted_at?: string;
-}
-
 export function useAnniversaries() {
   const [anniversaries, setAnniversaries] = useState<Anniversary[]>([]);
-  const [deletedIds, setDeletedIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -34,21 +28,9 @@ export function useAnniversaries() {
           schema: 'public',
           table: 'anniversaries',
         },
-        (payload) => {
-          console.log('🔄 Anniversary change:', payload);
+        () => {
+          console.log('🔄 Anniversary changed, reloading...');
           loadInitialData();
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'deleted_anniversaries',
-        },
-        (payload) => {
-          console.log('🔄 Deleted anniversary change:', payload);
-          loadDeletedIds();
         }
       )
       .subscribe();
@@ -62,29 +44,18 @@ export function useAnniversaries() {
     try {
       console.log('📥 Loading anniversaries...');
       
-      // 加载纪念日
       const { data: annData, error: annError } = await supabase
         .from('anniversaries')
         .select('*')
         .order('created_at', { ascending: false });
 
-      // 加载已删除的 ID
-      const { data: delData, error: delError } = await supabase
-        .from('deleted_anniversaries')
-        .select('id');
-
       if (annError) {
         console.error('❌ Error loading anniversaries:', annError);
         throw annError;
       }
-      if (delError) {
-        console.error('❌ Error loading deleted IDs:', delError);
-        throw delError;
-      }
 
       console.log('✅ Loaded', annData?.length || 0, 'anniversaries');
       setAnniversaries(annData || []);
-      setDeletedIds(delData?.map(d => d.id) || []);
       setLoading(false);
     } catch (error) {
       console.error('❌ Error in loadInitialData:', error);
@@ -126,29 +97,22 @@ export function useAnniversaries() {
   }
 
   async function deleteAnniversary(id: string) {
-    // 添加到已删除表
-    await supabase
-      .from('deleted_anniversaries')
-      .upsert({ id });
-
-    // 从原表删除
+    console.log('🗑️ Deleting anniversary:', id);
+    
     const { error } = await supabase
       .from('anniversaries')
       .delete()
       .eq('id', id);
 
-    if (error) throw error;
+    if (error) {
+      console.error('❌ Delete error:', error);
+      throw error;
+    }
+    
+    console.log('✅ Anniversary deleted');
   }
 
-  async function restoreAnniversary(id: string) {
-    // 从已删除表移除
-    await supabase
-      .from('deleted_anniversaries')
-      .delete()
-      .eq('id', id);
-  }
-
-  const filteredAnniversaries = anniversaries.filter(a => !deletedIds.includes(a.id));
+  const filteredAnniversaries = anniversaries;
 
   return {
     anniversaries: filteredAnniversaries,
@@ -156,6 +120,5 @@ export function useAnniversaries() {
     addAnniversary,
     updateAnniversary,
     deleteAnniversary,
-    restoreAnniversary,
   };
 }
