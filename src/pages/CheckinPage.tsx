@@ -243,8 +243,35 @@ export function CheckinPage() {
               {(() => {
                 const relatedRecords = records.filter(r => r.item_id === selectedItem.id && r.evidence);
                 if (relatedRecords.length > 0) {
-                  const randomRecord = relatedRecords[Math.floor(Math.random() * relatedRecords.length)];
-                  return <div className="text-sm px-4 py-2 rounded-full inline-block mb-4 bg-pink-100 text-gray-600" style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{randomRecord.evidence}</div>;
+                  const [displayIndex, setDisplayIndex] = useState(0);
+                  const [isAnimating, setIsAnimating] = useState(false);
+
+                  useEffect(() => {
+                    if (showPolaroid && relatedRecords.length > 1) {
+                      setIsAnimating(true);
+                      let currentIndex = 0;
+                      const interval = setInterval(() => {
+                        currentIndex = (currentIndex + 1) % relatedRecords.length;
+                        setDisplayIndex(currentIndex);
+                      }, 300);
+
+                      setTimeout(() => {
+                        clearInterval(interval);
+                        setIsAnimating(false);
+                        const finalIndex = Math.floor(Math.random() * relatedRecords.length);
+                        setDisplayIndex(finalIndex);
+                      }, 2000);
+                    }
+                  }, [showPolaroid]);
+
+                  return (
+                    <div 
+                      className={`text-sm px-4 py-2 rounded-full inline-block mb-4 bg-pink-100 text-gray-600 transition-all duration-300 ${isAnimating ? 'opacity-50 scale-95' : 'opacity-100 scale-100'}`}
+                      style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                    >
+                      {relatedRecords[displayIndex]?.evidence || randomComments[Math.floor(Math.random() * randomComments.length)]}
+                    </div>
+                  );
                 }
                 return <div className="text-sm px-4 py-2 rounded-full inline-block mb-4" style={{ backgroundColor: '#FFF0F5', color: '#DB7093' }}>{randomComments[Math.floor(Math.random() * randomComments.length)]}</div>;
               })()}
