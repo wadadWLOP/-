@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tag, Heart, Bell, CloudSun, ChevronRight, ChevronLeft, Calendar, Sparkles, Pencil, Repeat } from 'lucide-react';
 import { Button } from '../components/UI';
+import { supabase } from '../lib/supabase';
 
 const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
 
@@ -57,19 +58,22 @@ export function AddAnniversaryPage() {
       return `${year}-${month}-${day}`;
     };
 
-    const handleConfirm = () => {
-      setToast(true);
-      const existing = JSON.parse(localStorage.getItem('anniversary_custom') || '[]');
-      const newAnniversary = {
-        id: `custom_${Date.now()}`,
+    const handleConfirm = async () => {
+    setToast(true);
+    try {
+      await supabase.from('anniversaries').insert([{
         title,
         date: formatDateToLocal(selectedDate),
         description: type || undefined,
         icon: anniversaryTypes.find(t => t.label === type)?.icon || '📅',
-        isRecurring,
-      };
-      existing.push(newAnniversary);
-    localStorage.setItem('anniversary_custom', JSON.stringify(existing));
+        is_recurring: isRecurring,
+      }]);
+    } catch (error) {
+      console.error('Failed to add anniversary:', error);
+      alert('添加失败，请重试');
+      setToast(false);
+      return;
+    }
     setTimeout(() => {
       setToast(false);
       navigate('/anniversary');

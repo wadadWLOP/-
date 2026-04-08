@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Gift, Cake, PartyPopper, Plus, ChevronDown, ChevronUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { mockAnniversaries } from '../../data/mockData';
+import { supabase } from '../../lib/supabase';
 
 interface AnniversaryItem {
   id: string;
@@ -26,6 +26,7 @@ export function UpcomingAnniversaryCard({ anniversaries }: UpcomingAnniversaryCa
   const [isExpanded, setIsExpanded] = useState(false);
   const [today, setToday] = useState(new Date());
   const [upcomingList, setUpcomingList] = useState<AnniversaryItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const timer = setInterval(() => setToday(new Date()), 60000);
@@ -33,43 +34,90 @@ export function UpcomingAnniversaryCard({ anniversaries }: UpcomingAnniversaryCa
   }, []);
 
   useEffect(() => {
-    const deletedIds = JSON.parse(localStorage.getItem('deletedAnniversaryIds') || '[]');
-    const customAnniversaries: AnniversaryItem[] = JSON.parse(localStorage.getItem('anniversary_custom') || '[]');
+    loadAnniversaries();
 
-    const filteredMock = mockAnniversaries.filter((a: AnniversaryItem) => !deletedIds.includes(a.id));
-    const filteredCustom = customAnniversaries.filter((a: AnniversaryItem) => !deletedIds.includes(a.id));
-    const allAnniversaries = [...filteredMock, ...filteredCustom];
+    // 订阅实时变更
+    const channel = supabase
+      .channel('anniversary-card-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'anniversaries',
+        },
+        () => {
+          loadAnniversaries();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'deleted_anniversaries',
+        },
+        () => {
+          loadAnniversaries();
+        }
+      )
+      .subscribe();
 
-    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [today]);
 
-    const withNextDate = allAnniversaries.map(item => {
-      const [year, month, day] = item.date.split('-').map(Number);
-      let nextOccurrence = new Date(year, month - 1, day);
-      nextOccurrence.setFullYear(today.getFullYear());
+  async function loadAnniversaries() {
+    try {
+      const { data: annData, error: annError } = await supabase
+        .from('anniversaries')
+        .select('*');
 
-      if (nextOccurrence < todayStart) {
-        nextOccurrence.setFullYear(today.getFullYear() + 1);
-      }
+      const { data: delData, error: delError } = await supabase
+        .from('deleted_anniversaries')
+        .select('id');
 
-      const daysLeft = Math.ceil((nextOccurrence.getTime() - todayStart.getTime()) / (1000 * 60 * 60 * 24));
+      if (annError || delError) throw annError || delError;
 
-      let priority = 4;
-      if (item.title.includes('生日')) priority = 1;
-      else if (item.title.includes('周年')) priority = 2;
-      else if (item.title.includes('节日')) priority = 3;
+      const deletedIds = delData?.map(d => d.id) || [];
+      const allAnniversaries = (annData || []).filter((a: AnniversaryItem) => !deletedIds.includes(a.id));
 
-      return { item, daysLeft, priority };
-    });
+      const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
-    const futureAnniversaries = withNextDate
-      .filter(a => a.daysLeft > 0 && a.daysLeft <= 365)
-      .sort((a, b) => {
-        if (a.daysLeft !== b.daysLeft) return a.daysLeft - b.daysLeft;
-        return a.priority - b.priority;
+      const withNextDate = allAnniversaries.map(item => {
+        const [year, month, day] = item.date.split('-').map(Number);
+        let nextOccurrence = new Date(year, month - 1, day);
+        nextOccurrence.setFullYear(today.getFullYear());
+
+        if (nextOccurrence < todayStart) {
+          nextOccurrence.setFullYear(today.getFullYear() + 1);
+        }
+
+        const daysLeft = Math.ceil((nextOccurrence.getTime() - todayStart.getTime()) / (1000 * 60 * 60 * 24));
+
+        let priority = 4;
+        if (item.title.includes('生日')) priority = 1;
+        else if (item.title.includes('周年')) priority = 2;
+        else if (item.title.includes('节日')) priority = 3;
+
+        return { item, daysLeft, priority };
       });
 
-    setUpcomingList(futureAnniversaries.map(f => f.item));
-  }, [today]);
+      const futureAnniversaries = withNextDate
+        .filter(a => a.daysLeft > 0 && a.daysLeft <= 365)
+        .sort((a, b) => {
+          if (a.daysLeft !== b.daysLeft) return a.daysLeft - b.daysLeft;
+          return a.priority - b.priority;
+        });
+
+      setUpcomingList(futureAnniversaries.map(f => f.item));
+      setLoading(false);
+    } catch (error) {
+      console.error('Error loading anniversaries:', error);
+      setLoading(false);
+    }
+  }
 
   const displayList = isExpanded ? upcomingList : upcomingList.slice(0, 1);
 

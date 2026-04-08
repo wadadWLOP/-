@@ -1,8 +1,8 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { Plus, Calendar, Clock, Repeat, MoreHorizontal, Pencil, Trash2, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Badge, Button, EmptyState, FloatingCalendar } from '../components/UI';
-import { mockAnniversaries } from '../data/mockData';
+import { useAnniversaries } from '../hooks/useAnniversaries';
 
 interface AnniversaryItem {
   id: string;
@@ -15,13 +15,9 @@ interface AnniversaryItem {
 
 export function AnniversaryPage() {
   const navigate = useNavigate();
+  const { anniversaries, loading, deleteAnniversary } = useAnniversaries();
   const [showType, setShowType] = useState<'past' | 'future'>('past');
-  const [anniversaries, setAnniversaries] = useState(() => {
-    const deletedIds = JSON.parse(localStorage.getItem('deletedAnniversaryIds') || '[]');
-    const customAnniversaries = JSON.parse(localStorage.getItem('anniversary_custom') || '[]');
-    return [...mockAnniversaries.filter((a: AnniversaryItem) => !deletedIds.includes(a.id)), ...customAnniversaries.filter((a: AnniversaryItem) => !deletedIds.includes(a.id))];
-  });
-  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<AnniversaryItem | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -37,16 +33,16 @@ export function AnniversaryPage() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  useEffect(() => {
-    const loadData = () => {
-      const deletedIds = JSON.parse(localStorage.getItem('deletedAnniversaryIds') || '[]');
-      const customAnniversaries = JSON.parse(localStorage.getItem('anniversary_custom') || '[]');
-      setAnniversaries([...mockAnniversaries.filter((a: AnniversaryItem) => !deletedIds.includes(a.id)), ...customAnniversaries.filter((a: AnniversaryItem) => !deletedIds.includes(a.id))]);
-    };
-    loadData();
-    window.addEventListener('focus', loadData);
-    return () => window.removeEventListener('focus', loadData);
-  }, []);
+  const handleDelete = async (anniversary: AnniversaryItem) => {
+    try {
+      await deleteAnniversary(anniversary.id);
+    } catch (error) {
+      console.error('Failed to delete anniversary:', error);
+      alert('删除失败，请重试');
+    }
+    setDeleteConfirm(null);
+    setOpenMenuId(null);
+  };
 
   const categorizedAnniversaries = anniversaries.map(anniversary => {
     const targetDate = new Date(anniversary.date);
@@ -96,21 +92,21 @@ export function AnniversaryPage() {
 
   const displayList = showType === 'past' ? pastAnniversaries : futureAnniversaries;
 
-  const handleDelete = (anniversary: AnniversaryItem) => {
-    const deletedIds = JSON.parse(localStorage.getItem('deletedAnniversaryIds') || '[]');
-    if (!deletedIds.includes(anniversary.id)) {
-      deletedIds.push(anniversary.id);
-      localStorage.setItem('deletedAnniversaryIds', JSON.stringify(deletedIds));
-    }
-    setAnniversaries(prev => prev.filter(a => a.id !== anniversary.id));
-    setDeleteConfirm(null);
-    setOpenMenuId(null);
-  };
-
   const handleEdit = (anniversary: AnniversaryItem) => {
     setOpenMenuId(null);
     navigate(`/anniversary/edit/${anniversary.id}`);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin text-4xl mb-4">⏳</div>
+          <p className="text-[#9A8B7A]">加载中...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
