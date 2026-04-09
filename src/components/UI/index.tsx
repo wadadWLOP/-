@@ -124,3 +124,4 @@ export { UpcomingAnniversaryCard } from './UpcomingAnniversaryCard';
 export { GlobalCatMenu } from './GlobalCatMenu';
 export { CoreFeaturesGrid } from './CoreFeaturesGrid';
 export { DatePickerModal } from './DatePickerModal';
+export { ScrapbookCard } from './ScrapbookCard';
