@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { X, Star, Heart, Sparkles } from 'lucide-react';
 
 interface ScrapbookCardProps {
@@ -73,24 +73,22 @@ export function ScrapbookCard({
   const weekDay = ['日', '一', '二', '三', '四', '五', '六'][dateObj.getDay()];
 
   return (
-    <div className="m-6">
-      <div
-        onClick={handleCardClick}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        className={`relative w-72 h-80 cursor-pointer transition-all duration-300 ${
-          isDeleting ? 'opacity-0 scale-90' : 'opacity-100 scale-100'
-        }`}
-        style={{
-          backgroundColor: '#FFFBF0',
-          borderRadius: '15px',
-          padding: '20px',
-          boxShadow: '5px 5px 15px rgba(0,0,0,0.08)',
-          border: '1px solid #F0E6D2',
-          transform: isHovered ? 'translateY(-5px) rotate(-1deg)' : 'rotate(0deg)',
-        }}
-      >
-      {/* 胶带装饰 */}
+    <div
+      onClick={handleCardClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={`relative w-72 h-80 cursor-pointer transition-all duration-300 ${
+        isDeleting ? 'opacity-0 scale-90' : 'opacity-100 scale-100'
+      }`}
+      style={{
+        backgroundColor: '#FFFBF0',
+        borderRadius: '15px',
+        padding: '20px',
+        boxShadow: '5px 5px 15px rgba(0,0,0,0.08)',
+        border: '1px solid #F0E6D2',
+        transform: isHovered ? 'translateY(-5px) rotate(-1deg)' : 'rotate(0deg)',
+      }}
+    >
       <div
         className="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-6 z-10"
         style={{
@@ -99,7 +97,6 @@ export function ScrapbookCard({
         }}
       />
 
-      {/* 分类标签 */}
       {category && (
         <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20">
           {category === 'qiuqiu' ? (
@@ -130,7 +127,6 @@ export function ScrapbookCard({
         </div>
       )}
 
-      {/* 删除按钮 */}
       {isHovered && onDelete && (
         <button
           onClick={handleDelete}
@@ -140,7 +136,6 @@ export function ScrapbookCard({
         </button>
       )}
 
-      {/* 日期印章 */}
       <div className="flex items-start justify-between mb-3">
         <div
           className="px-3 py-1 border-2 border-[#c45c3e] rounded"
@@ -150,9 +145,9 @@ export function ScrapbookCard({
         </div>
         <div className="text-2xl">
           {weather === 'sunny' ? (
-            <img 
-              src={weatherImages[weatherImageIndex]} 
-              alt="" 
+            <img
+              src={weatherImages[weatherImageIndex]}
+              alt=""
               className="w-16 h-16 object-contain cursor-pointer hover:scale-110 transition-transform"
               onClick={handleWeatherClick}
             />
@@ -162,7 +157,6 @@ export function ScrapbookCard({
         </div>
       </div>
 
-      {/* 星期标签 */}
       <div className="mb-3">
         <span
           className="inline-block px-2 py-1 text-xs rounded"
@@ -176,7 +170,6 @@ export function ScrapbookCard({
         </span>
       </div>
 
-      {/* 标题 */}
       {title && (
         <h3
           className="text-lg font-bold mb-2 truncate"
@@ -186,7 +179,6 @@ export function ScrapbookCard({
         </h3>
       )}
 
-      {/* 摘要 */}
       {excerpt && (
         <p
           className="text-sm mb-3 line-clamp-3"
@@ -200,21 +192,18 @@ export function ScrapbookCard({
         </p>
       )}
 
-      {/* 照片 */}
       {photoUrl && (
         <div className="mb-3 rounded-lg overflow-hidden shadow-md">
           <img src={photoUrl} alt="" className="w-full h-32 object-cover" />
         </div>
       )}
 
-      {/* 贴纸装饰 */}
       {stickerEmoji && (
         <div className="absolute bottom-16 right-4 text-3xl animate-bounce">
           {stickerEmoji}
         </div>
       )}
 
-      {/* 底部信息 */}
       <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
         <span className="text-xs text-gray-400" style={{ fontFamily: '乐米小奶泡体' }}>共 {wordCount} 字</span>
         <div className="flex gap-1">
@@ -222,7 +211,6 @@ export function ScrapbookCard({
           <Heart className="w-3 h-3 text-pink-400 fill-pink-400" />
           <Sparkles className="w-3 h-3 text-purple-400 fill-purple-400" />
         </div>
-      </div>
       </div>
     </div>
   );
