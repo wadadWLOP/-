@@ -77,7 +77,7 @@ export function ScrapbookCard({
       onClick={handleCardClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={`relative w-72 h-80 cursor-pointer transition-all duration-300 ${
+      className={`relative w-72 h-80 cursor-pointer transition-all duration-300 m-4 ${
         isDeleting ? 'opacity-0 scale-90' : 'opacity-100 scale-100'
       }`}
       style={{
