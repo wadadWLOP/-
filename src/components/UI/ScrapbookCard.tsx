@@ -84,9 +84,12 @@ export function ScrapbookCard({
         backgroundColor: '#FFFBF0',
         borderRadius: '15px',
         padding: '20px',
-        boxShadow: '5px 5px 15px rgba(0,0,0,0.08)',
+        boxShadow: isHovered
+          ? '8px 8px 20px rgba(0,0,0,0.15)'
+          : '5px 5px 15px rgba(0,0,0,0.08)',
         border: '1px solid #F0E6D2',
-        transform: isHovered ? 'translateY(-5px) rotate(-1deg)' : 'rotate(0deg)',
+        marginTop: isHovered ? '-4px' : '0',
+        marginLeft: isHovered ? '-2px' : '0',
       }}
     >
       <div
