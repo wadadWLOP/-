@@ -73,22 +73,23 @@ export function ScrapbookCard({
   const weekDay = ['日', '一', '二', '三', '四', '五', '六'][dateObj.getDay()];
 
   return (
-    <div
-      onClick={handleCardClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className={`relative w-72 h-80 cursor-pointer transition-all duration-300 m-4 ${
-        isDeleting ? 'opacity-0 scale-90' : 'opacity-100 scale-100'
-      }`}
-      style={{
-        backgroundColor: '#FFFBF0',
-        borderRadius: '15px',
-        padding: '20px',
-        boxShadow: '5px 5px 15px rgba(0,0,0,0.08)',
-        border: '1px solid #F0E6D2',
-        transform: isHovered ? 'translateY(-5px) rotate(-1deg)' : 'rotate(0deg)',
-      }}
-    >
+    <div className="m-4">
+      <div
+        onClick={handleCardClick}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        className={`relative w-72 h-80 cursor-pointer transition-all duration-300 ${
+          isDeleting ? 'opacity-0 scale-90' : 'opacity-100 scale-100'
+        }`}
+        style={{
+          backgroundColor: '#FFFBF0',
+          borderRadius: '15px',
+          padding: '20px',
+          boxShadow: '5px 5px 15px rgba(0,0,0,0.08)',
+          border: '1px solid #F0E6D2',
+          transform: isHovered ? 'translateY(-5px) rotate(-1deg)' : 'rotate(0deg)',
+        }}
+      >
       {/* 胶带装饰 */}
       <div
         className="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-6 z-10"
@@ -221,6 +222,7 @@ export function ScrapbookCard({
           <Heart className="w-3 h-3 text-pink-400 fill-pink-400" />
           <Sparkles className="w-3 h-3 text-purple-400 fill-purple-400" />
         </div>
+      </div>
       </div>
     </div>
   );
