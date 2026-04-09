@@ -25,6 +25,14 @@ export const uploadImage = async (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const fileExt = file.name.split('.').pop();
     const fileName = `diary-photos/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+    
+    console.log('开始上传到腾讯云 COS:', {
+      bucket,
+      region,
+      fileName,
+      fileSize: file.size,
+      fileType: file.type
+    });
 
     cos.putObject({
       Bucket: bucket,
@@ -34,10 +42,11 @@ export const uploadImage = async (file: File): Promise<string> => {
       Body: file,
     }, (err, data) => {
       if (err) {
-        console.error('Error uploading image:', err);
+        console.error('上传失败:', err);
         reject(err);
       } else {
         const url = `https://${bucket}.cos.${region}.myqcloud.com/${fileName}`;
+        console.log('上传成功:', url);
         resolve(url);
       }
     });

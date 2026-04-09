@@ -42,7 +42,11 @@ export function ScrapbookCard({
     return saved ? parseInt(saved, 10) : 0;
   });
 
-  const weatherImages = ['/image/a.png', '/image/b.png', '/image/c.png'];
+  const weatherImages = [
+    'https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/weather/a.png',
+    'https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/weather/b.png',
+    'https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/weather/c.png'
+  ];
 
   const handleWeatherClick = (e: React.MouseEvent) => {
     e.stopPropagation();
