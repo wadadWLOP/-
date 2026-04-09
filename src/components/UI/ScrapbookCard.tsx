@@ -73,7 +73,7 @@ export function ScrapbookCard({
   const weekDay = ['日', '一', '二', '三', '四', '五', '六'][dateObj.getDay()];
 
   return (
-    <div className="m-4">
+    <div className="m-6">
       <div
         onClick={handleCardClick}
         onMouseEnter={() => setIsHovered(true)}
