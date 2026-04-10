@@ -619,14 +619,19 @@ export function DiaryWritePage() {
                         </button>
                         <button
                           onClick={() => setDiaryCategory('guozhi')}
-                          className={`px-3 py-1 rounded-full text-sm transition-all ${
+                          className={`px-3 py-1 rounded-full text-sm transition-all flex items-center gap-1 ${
                             diaryCategory === 'guozhi'
                               ? 'bg-blue-400 text-white shadow-md'
                               : 'text-gray-500 hover:bg-blue-100'
                           }`}
                           style={{ fontFamily: '乐米小奶泡体' }}
                         >
-                          📘 果汁的日记
+                          <img 
+                            src="https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/icons/guozhi-icon.jpg" 
+                            alt="果汁"
+                            className="w-4 h-4 object-cover rounded-full"
+                          />
+                          果汁的日记
                         </button>
                       </div>
                     </div>

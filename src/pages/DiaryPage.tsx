@@ -124,7 +124,11 @@ export function DiaryPage() {
                 : 'bg-white/80 text-gray-600 hover:bg-white'
             }`}
           >
-            <span className="text-lg">🦊</span>
+            <img 
+              src="https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/icons/guozhi-icon.jpg" 
+              alt="果汁"
+              className="w-5 h-5 object-cover rounded-full"
+            />
             <span>果汁</span>
           </button>
         </div>
