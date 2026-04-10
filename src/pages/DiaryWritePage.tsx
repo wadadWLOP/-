@@ -61,6 +61,8 @@ export function DiaryWritePage() {
   const [isArchiving, setIsArchiving] = useState(false);
   const [loading, setLoading] = useState(false);
   const [diaryCategory, setDiaryCategory] = useState<'qiuqiu' | 'guozhi' | ''>('');
+  const [fontColor, setFontColor] = useState<string>('#3a3a3a');
+  const [showColorPicker, setShowColorPicker] = useState(false);
   const leftTextareaRef = useRef<HTMLTextAreaElement>(null);
   const rightTextareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -687,11 +689,12 @@ export function DiaryWritePage() {
                   value={leftContent}
                   onChange={handleLeftContentChange}
                   placeholder="在这里写下今天的故事..."
-                  className="w-full h-full resize-none bg-transparent border-none outline-none text-sm text-[#3a3020] placeholder:text-[#c0b0a0] placeholder:font-['乐米小奶泡体'] scrollbar-none"
+                  className="w-full h-full resize-none bg-transparent border-none outline-none text-sm placeholder:text-[#c0b0a0] placeholder:font-['乐米小奶泡体'] scrollbar-none"
                   style={{
                     lineHeight: '2.2',
                     letterSpacing: '0.05em',
                     fontFamily: '乐米小奶泡体',
+                    color: fontColor,
                   }}
                 />
               </div>
@@ -704,11 +707,12 @@ export function DiaryWritePage() {
                       onChange={handleRightContentChange}
                       onKeyDown={handleRightKeyDown}
                       placeholder={rightContent ? "" : "写满左页后将自动跳转到这里..."}
-                      className={`w-full h-full resize-none bg-transparent border-none outline-none text-sm text-[#3a3020] placeholder:text-[#c0b0a0] placeholder:font-['乐米小奶泡体'] scrollbar-none ${!rightContent ? 'opacity-40' : 'opacity-100'}`}
+                      className={`w-full h-full resize-none bg-transparent border-none outline-none text-sm placeholder:text-[#c0b0a0] placeholder:font-['乐米小奶泡体'] scrollbar-none ${!rightContent ? 'opacity-40' : 'opacity-100'}`}
                       style={{
                         lineHeight: '2.2',
                         letterSpacing: '0.05em',
                         fontFamily: '乐米小奶泡体',
+                        color: fontColor,
                       }}
                     />
                     <div className="absolute top-4 right-4 text-xs text-[#a09080]" style={{ fontFamily: '乐米小奶泡体' }}>
@@ -885,6 +889,17 @@ export function DiaryWritePage() {
                     >
                       <Pencil className="w-4 h-4 text-[#5a4030]" />
                     </button>
+                    <div className="w-px h-4 bg-[#e0d8d0] mx-1" />
+                    <button
+                      onClick={() => setShowColorPicker(!showColorPicker)}
+                      className="p-1.5 hover:bg-[#f0e8e0] rounded-full transition-colors relative"
+                      title="字体颜色"
+                    >
+                      <div 
+                        className="w-4 h-4 rounded-full border-2 border-white shadow-sm"
+                        style={{ backgroundColor: fontColor }}
+                      />
+                    </button>
                   </div>
                 </>
               )}
@@ -904,7 +919,7 @@ export function DiaryWritePage() {
           {showStickerPicker && (
             <div className="absolute bottom-16 left-1/2 -translate-x-1/2 p-3 bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-[#e8dcc8] z-50 animate-fade-in">
               <div className="flex gap-1 flex-wrap justify-center max-w-[200px]">
-                {['🔥', '💕', '✨', '🌸', '⭐', '🌙', '💫', '🎀', '🌈', '🍀', '🦋', '🐱', '🌺', '🍃', '💎', '🎵'].map((emoji) => (
+                {['🔥', '💕', '✨', '🌸', '⭐', '🌙', '💫', '🎀', '🌈', '🍀', '', '🐱', '🌺', '🍃', '💎', '🎵'].map((emoji) => (
                   <button
                     key={emoji}
                     onClick={() => {
@@ -915,6 +930,31 @@ export function DiaryWritePage() {
                   >
                     {emoji}
                   </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {showColorPicker && (
+            <div className="absolute bottom-16 left-1/2 -translate-x-1/2 p-3 bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-[#e8dcc8] z-50 animate-fade-in">
+              <div className="grid grid-cols-5 gap-2">
+                {[
+                  '#3a3a3a', '#c45c3e', '#e67e22', '#d35400', '#f39c12',
+                  '#27ae60', '#16a085', '#2980b9', '#8e44ad', '#c0392b',
+                  '#ff6b6b', '#ff8e72', '#ffa502', '#f7d794', '#70a1ff',
+                  '#5352ed', '#a55eea', '#fd79a8', '#636e72', '#2d3436'
+                ].map((color) => (
+                  <button
+                    key={color}
+                    onClick={() => {
+                      setFontColor(color);
+                      setShowColorPicker(false);
+                    }}
+                    className={`w-8 h-8 rounded-full border-2 transition-all hover:scale-110 ${
+                      fontColor === color ? 'border-gray-600 scale-110 shadow-md' : 'border-white'
+                    }`}
+                    style={{ backgroundColor: color }}
+                  />
                 ))}
               </div>
             </div>
