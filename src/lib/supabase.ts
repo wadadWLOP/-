@@ -18,8 +18,15 @@ const cos = new COS({
   SecretKey: import.meta.env.VITE_TENCENT_SECRET_KEY
 });
 
-const bucket = import.meta.env.VITE_TENCENT_BUCKET;
+const bucket = import.meta.env.VITE_TENCENT_BUCKET || 'juiceqiuqiu-1420133198';
 const region = import.meta.env.VITE_TENCENT_REGION || 'ap-shanghai';
+
+console.log('COS 配置检查:', {
+  hasSecretId: !!import.meta.env.VITE_TENCENT_SECRET_ID,
+  hasSecretKey: !!import.meta.env.VITE_TENCENT_SECRET_KEY,
+  bucket,
+  region
+});
 
 export const uploadImage = async (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
