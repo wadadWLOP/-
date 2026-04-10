@@ -144,41 +144,43 @@ export function DiaryPage() {
       </div>
 
       {/* 归档卡片墙 */}
-      {!loading && filteredArchives.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-12 px-4 py-4">
-          {filteredArchives.map((archive) => (
-            <ScrapbookCard
-              key={archive.id}
-              id={archive.id}
-              date={archive.date}
-              title={archive.title}
-              excerpt={archive.excerpt}
-              weather={archive.weather}
-              wordCount={archive.word_count}
-              photoUrl={archive.photo_url}
-              stickerEmoji={archive.sticker_emoji}
-              category={archive.category}
-              onClick={handleArchiveClick}
-              onDelete={() => archive.id && handleDeleteArchive(archive.id)}
-            />
-          ))}
-        </div>
-      )}
+      <div className="min-h-[400px]">
+        {!loading && filteredArchives.length > 0 && (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-12 px-4 py-4">
+            {filteredArchives.map((archive) => (
+              <ScrapbookCard
+                key={archive.id}
+                id={archive.id}
+                date={archive.date}
+                title={archive.title}
+                excerpt={archive.excerpt}
+                weather={archive.weather}
+                wordCount={archive.word_count}
+                photoUrl={archive.photo_url}
+                stickerEmoji={archive.sticker_emoji}
+                category={archive.category}
+                onClick={handleArchiveClick}
+                onDelete={() => archive.id && handleDeleteArchive(archive.id)}
+              />
+            ))}
+          </div>
+        )}
 
-      {loading && (
-        <div className="text-center py-12">
-          <div className="animate-spin text-4xl mb-4">⏳</div>
-          <p className="text-gray-400">加载中...</p>
-        </div>
-      )}
+        {loading && (
+          <div className="text-center py-12">
+            <div className="animate-spin text-4xl mb-4">⏳</div>
+            <p className="text-gray-400">加载中...</p>
+          </div>
+        )}
 
-      {!loading && filteredArchives.length === 0 && (
-        <EmptyState
-          icon={<BookOpen className="w-10 h-10" />}
-          title={searchQuery || selectedCategory !== 'all' || selectedDate ? '没有找到匹配的日记' : '还没有日记'}
-          description={searchQuery || selectedCategory !== 'all' || selectedDate ? '换个搜索词或筛选条件试试看~' : '还没有写过日记，点击上方按钮记录你们的第一个美好时刻吧！'}
-        />
-      )}
+        {!loading && filteredArchives.length === 0 && (
+          <EmptyState
+            icon={<BookOpen className="w-10 h-10" />}
+            title={searchQuery || selectedCategory !== 'all' || selectedDate ? '没有找到匹配的日记' : '还没有日记'}
+            description={searchQuery || selectedCategory !== 'all' || selectedDate ? '换个搜索词或筛选条件试试看~' : '还没有写过日记，点击上方按钮记录你们的第一个美好时刻吧！'}
+          />
+        )}
+      </div>
 
       <DatePickerModal
         isOpen={showDatePicker}
