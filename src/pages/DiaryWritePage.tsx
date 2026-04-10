@@ -96,25 +96,27 @@ export function DiaryWritePage() {
           if (data) {
             // 优先使用 full_content，如果没有则使用 excerpt
             const content = data.full_content || data.excerpt || '';
-            setPages([{ leftContent: content, rightContent: '' }]);
             setWeather(data.weather || 'sunny');
             setDiaryCategory(data.category || '');
+            
+            // 如果有照片 URL，以照片模式加载
             if (data.photo_url) {
-              setFloatingElements([{
-                id: 'photo-1',
-                type: 'photo',
-                x: 50,
-                y: 100,
-                width: 200,
-                height: 150,
-                rotation: -5,
-                scale: 1,
-                zIndex: 1,
-                src: data.photo_url,
+              setIsPhotoMode(true);
+              setPhotoPages([{
+                topImage: data.photo_url,
+                bottomImage: null,
+                topDescription: '',
+                bottomDescription: '',
               }]);
+              setPages([{ leftContent: content, rightContent: '' }]);
+            } else {
+              // 没有照片，以普通模式加载
+              setIsPhotoMode(false);
+              setPages([{ leftContent: content, rightContent: '' }]);
             }
+            
             if (data.sticker_emoji) {
-              setFloatingElements(prev => [...prev, {
+              setFloatingElements([{
                 id: 'sticker-1',
                 type: 'sticker',
                 x: 250,
