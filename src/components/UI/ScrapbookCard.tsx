@@ -22,6 +22,13 @@ const weatherIcons: Record<string, string> = {
   snowy: '❄️',
 };
 
+// 从 HTML 中提取纯文本
+const extractTextFromHTML = (html: string) => {
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  return tmp.textContent || tmp.innerText || '';
+};
+
 export function ScrapbookCard({
   id,
   date,
@@ -200,9 +207,8 @@ export function ScrapbookCard({
             fontFamily: '乐米小奶泡体',
             lineHeight: '1.8',
           }}
-        >
-          {excerpt}
-        </p>
+          dangerouslySetInnerHTML={{ __html: excerpt }}
+        />
       )}
 
       {photoUrl && (
