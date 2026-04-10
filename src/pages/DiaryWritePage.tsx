@@ -99,20 +99,18 @@ export function DiaryWritePage() {
             setWeather(data.weather || 'sunny');
             setDiaryCategory(data.category || '');
             
-            // 如果有照片 URL，以照片模式加载
+            // 始终以普通模式加载文字内容
+            setIsPhotoMode(false);
+            setPages([{ leftContent: content, rightContent: '' }]);
+            
+            // 如果有照片，加载到照片页
             if (data.photo_url) {
-              setIsPhotoMode(true);
               setPhotoPages([{
                 topImage: data.photo_url,
                 bottomImage: null,
                 topDescription: '',
                 bottomDescription: '',
               }]);
-              setPages([{ leftContent: content, rightContent: '' }]);
-            } else {
-              // 没有照片，以普通模式加载
-              setIsPhotoMode(false);
-              setPages([{ leftContent: content, rightContent: '' }]);
             }
             
             if (data.sticker_emoji) {
