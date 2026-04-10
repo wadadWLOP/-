@@ -298,9 +298,20 @@ export function DiaryWritePage() {
   const handleArchive = async () => {
     setIsArchiving(true);
     try {
-      // 提取第一张照片
+      // 提取第一张照片 - 优先从 floatingElements 获取，其次从 photoPages 获取
+      let photoUrl: string | undefined;
       const photoElement = floatingElements.find(el => el.type === 'photo');
-      const photoUrl = photoElement?.src;
+      if (photoElement?.src) {
+        photoUrl = photoElement.src;
+      } else {
+        // 从照片模式获取第一张图片
+        const firstPhotoPage = photoPages[0];
+        if (firstPhotoPage?.topImage) {
+          photoUrl = firstPhotoPage.topImage;
+        } else if (firstPhotoPage?.bottomImage) {
+          photoUrl = firstPhotoPage.bottomImage;
+        }
+      }
       
       // 提取第一个贴纸
       const stickerElement = floatingElements.find(el => el.type === 'sticker');
