@@ -608,14 +608,19 @@ export function DiaryWritePage() {
                       <div className="flex gap-2 bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
                         <button
                           onClick={() => setDiaryCategory('qiuqiu')}
-                          className={`px-3 py-1 rounded-full text-sm transition-all ${
+                          className={`px-3 py-1 rounded-full text-sm transition-all flex items-center gap-1 ${
                             diaryCategory === 'qiuqiu'
                               ? 'bg-pink-400 text-white shadow-md'
                               : 'text-gray-500 hover:bg-pink-100'
                           }`}
                           style={{ fontFamily: '乐米小奶泡体' }}
                         >
-                          📔 秋秋的日记
+                          <img 
+                            src="https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/icons/qiuqiu-icon.jpg" 
+                            alt="秋秋"
+                            className="w-4 h-4 object-cover rounded-full"
+                          />
+                          秋秋的日记
                         </button>
                         <button
                           onClick={() => setDiaryCategory('guozhi')}

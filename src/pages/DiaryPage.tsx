@@ -113,7 +113,11 @@ export function DiaryPage() {
                 : 'bg-white/80 text-gray-600 hover:bg-white'
             }`}
           >
-            <span className="text-lg">🐰</span>
+            <img 
+              src="https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/icons/qiuqiu-icon.jpg" 
+              alt="秋秋"
+              className="w-5 h-5 object-cover rounded-full"
+            />
             <span>秋秋</span>
           </button>
           <button

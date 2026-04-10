@@ -104,7 +104,7 @@ export function ScrapbookCard({
         <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20">
           {category === 'qiuqiu' ? (
             <span
-              className="px-2 py-0.5 rounded-full text-xs font-bold"
+              className="px-2 py-0.5 rounded-full text-xs font-bold flex items-center gap-1"
               style={{
                 backgroundColor: '#FFB6C1',
                 color: '#fff',
@@ -112,7 +112,12 @@ export function ScrapbookCard({
                 fontSize: '10px',
               }}
             >
-              📔 秋秋
+              <img 
+                src="https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/icons/qiuqiu-icon.jpg" 
+                alt="秋秋"
+                className="w-4 h-4 object-cover rounded-full"
+              />
+              秋秋
             </span>
           ) : category === 'guozhi' ? (
             <span
