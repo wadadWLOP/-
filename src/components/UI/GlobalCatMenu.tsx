@@ -64,7 +64,6 @@ function DraggableCat({ framePrefix, initialLeft, initialTop, onRemove, catId }:
   const [isVisible, setIsVisible] = useState(true);
   const [showClose, setShowClose] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
-  const [retryCount, setRetryCount] = useState(0);
   const dragRef = useRef({ startX: 0, startY: 0, startLeft: 0, startTop: 0 });
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -78,43 +77,24 @@ function DraggableCat({ framePrefix, initialLeft, initialTop, onRemove, catId }:
   }, [isDragging, isVisible, framePrefix]);
 
   useEffect(() => {
-    // 构建图片 URL - 尝试所有可能的格式和路径
+    // 构建图片 URL
     const staticActions = ['sleep', 'fish', 'kiss'];
     const isStaticAction = staticActions.includes(framePrefix);
     
-    // 可能的路径前缀
-    const pathPrefixes = [
-      'max/',
-      '',  // 根目录
-      'cat/',
-      'cats/',
-    ];
-    
     let url;
     if (framePrefix === 'falling') {
-      url = `https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/max/falling.png`;
+      // falling 只有一张图片
+      url = `https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/max/falling1.png`;
     } else if (isStaticAction) {
-      // 静态动作：尝试不同的路径和文件名格式
-      const pathIndex = Math.floor(retryCount / 4);
-      const formatIndex = retryCount % 4;
-      const formats = [
-        `${framePrefix}.png`,
-        `${framePrefix}1.png`,
-        `${framePrefix}_1.png`,
-        `${framePrefix}_0.png`,
-      ];
-      const prefix = pathPrefixes[pathIndex % pathPrefixes.length];
-      url = `https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/${prefix}${formats[formatIndex]}`;
+      // 静态动作：只有一张图片
+      url = `https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/max/${framePrefix}1.png`;
     } else {
-      // 动态动作：尝试不同路径
-      const pathIndex = Math.floor(retryCount / 12);
-      const frameIndex = retryCount % 12;
-      const prefix = pathPrefixes[pathIndex % pathPrefixes.length];
-      url = `https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/${prefix}${framePrefix}${frame}.png`;
+      // 动态动作：stand, walkleft, walkright, drag (1-12 帧)
+      url = `https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/max/${framePrefix}${frame}.png`;
     }
     
     setImageUrl(url);
-  }, [framePrefix, frame, retryCount]);
+  }, [framePrefix, frame]);
 
   useEffect(() => {
     const saved = localStorage.getItem(`__global_cat_pos_${catId}`);
@@ -160,9 +140,8 @@ function DraggableCat({ framePrefix, initialLeft, initialTop, onRemove, catId }:
   if (!isVisible) return null;
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    // 图片加载失败时，记录错误并尝试下一个 URL
+    // 图片加载失败时，记录错误
     console.error('图片加载失败:', e.currentTarget.src);
-    setRetryCount(prev => prev + 1);
   };
 
   const handleClose = () => {
