@@ -18,7 +18,7 @@ const coreFeatures = [
   {
     title: '贪吃大王',
     subtitle: '吃吃吃',
-    path: '/wish',
+    path: '/food',
     img: 'https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/6.jpg',
     fallback: '✨',
   },
