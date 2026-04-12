@@ -41,10 +41,10 @@ WHERE item_id = 1
 ORDER BY created_at DESC;
 
 -- 4. 删除指定 ID 的打卡记录（删除一张卡片）
--- 将 5 替换为你要删除的记录 ID
+-- 将 UUID 替换为你要删除的记录 ID
 -- ========================================
 DELETE FROM checkin_records
-WHERE id = 5;
+WHERE id = '58e62c9c-850e-4977-9010-d5996168a447';
 
 -- 5. 减少指定项目的打卡次数（减少一次笨蛋次数）
 -- 将 ID 和次数替换为你需要的值
@@ -54,22 +54,20 @@ SET count = count - 1
 WHERE id = 1  -- 1=笨蛋秋秋，2=笨蛋果汁
 AND count > 0;  -- 确保次数不会变成负数
 
--- 6. 删除记录并同步减少次数（事务操作）
--- 将 record_id 和 item_id 替换为你需要的值
+-- 6. 删除记录并同步减少次数（分步操作）
 -- ========================================
-BEGIN;
+-- 第一步：先查询这条记录的 item_id
+SELECT item_id FROM checkin_records WHERE id = '58e62c9c-850e-4977-9010-d5996168a447';
 
--- 先删除记录
+-- 第二步：删除记录（假设查询到的 item_id = 1）
 DELETE FROM checkin_records
-WHERE id = 5;  -- 替换为记录 ID
+WHERE id = '58e62c9c-850e-4977-9010-d5996168a447';
 
--- 再减少对应项目的次数
+-- 第三步：减少对应项目的次数（将 1 替换为第一步查询到的 item_id）
 UPDATE checkin_items
 SET count = count - 1
-WHERE id = 1  -- 替换为项目 ID
+WHERE id = 1
 AND count > 0;
-
-COMMIT;
 
 -- 7. 查看每个项目的记录数量（验证数据）
 -- ========================================
