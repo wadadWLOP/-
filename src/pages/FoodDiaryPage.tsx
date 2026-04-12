@@ -293,8 +293,16 @@ export function FoodDiaryPage() {
             <div className="pt-6 pb-3 px-3">
               {/* 谁的好吃的 */}
               <div className="flex items-center justify-between mb-3">
-                <span className="text-xs bg-rose-50 text-rose-600 px-3 py-1.5 rounded-full font-medium">
-                  {currentEntry.payer === 'qiuqiu' ? "🐱 秋秋的好吃的" : "🐹 果汁的好吃的"}
+                <span className="text-xs bg-rose-50 text-rose-600 px-3 py-1.5 rounded-full font-medium flex items-center gap-1.5">
+                  <img 
+                    src={currentEntry.payer === 'qiuqiu' 
+                      ? "https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/icons/qiuqiu-icon.jpg"
+                      : "https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/icons/guozhi-icon.jpg"
+                    }
+                    alt={currentEntry.payer}
+                    className="w-4 h-4 object-cover rounded-full"
+                  />
+                  {currentEntry.payer === 'qiuqiu' ? "秋秋的好吃的" : "果汁的好吃的"}
                 </span>
                 
                 {/* 卡路里指示器 */}

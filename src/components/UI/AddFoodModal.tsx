@@ -25,8 +25,8 @@ const ratingOptions = [
 ];
 
 const payerOptions = [
-  { value: 'qiuqiu', label: '秋秋', emoji: '🐱', bg: 'from-amber-100 to-orange-100' },
-  { value: 'guozhi', label: '果汁', emoji: '🐹', bg: 'from-rose-100 to-pink-100' },
+  { value: 'qiuqiu', label: '秋秋', icon: 'https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/icons/qiuqiu-icon.jpg', bg: 'from-amber-100 to-orange-100' },
+  { value: 'guozhi', label: '果汁', icon: 'https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/icons/guozhi-icon.jpg', bg: 'from-rose-100 to-pink-100' },
 ];
 
 export function AddFoodModal({ onClose, onAdd, placeholder, quickTags }: AddFoodModalProps) {
@@ -208,7 +208,11 @@ export function AddFoodModal({ onClose, onAdd, placeholder, quickTags }: AddFood
                       : 'border-rose-100 bg-white hover:border-rose-200 hover:shadow-md'
                   }`}
                 >
-                  <div className="text-3xl mb-1">{option.emoji}</div>
+                  <img 
+                    src={option.icon} 
+                    alt={option.label}
+                    className="w-12 h-12 mx-auto mb-2 object-cover rounded-full"
+                  />
                   <div className={`text-sm font-bold ${payer === option.value ? 'text-gray-700' : 'text-gray-500'}`}>
                     {option.label}
                   </div>
