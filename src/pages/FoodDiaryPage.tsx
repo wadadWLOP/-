@@ -224,15 +224,14 @@ export function FoodDiaryPage() {
             <div 
               className="bg-white shadow-2xl relative"
               style={{
-                WebkitMaskImage: `
-                  radial-gradient(circle at 50px 10px, transparent 10px, red 10.5px),
-                  radial-gradient(closest-side circle at 50%, red 99%, transparent 100%)
-                `,
-                WebkitMaskSize: `100%, 4px 12px`,
-                WebkitMaskRepeat: `repeat, repeat-y`,
-                WebkitMaskPosition: `0 -10px, 48px`,
-                WebkitMaskComposite: `source-out`,
-                maskComposite: `subtract`,
+                WebkitMaskImage: `radial-gradient(circle at 10px, transparent 10px, red 10.5px)`,
+                WebkitMaskPosition: '-10px',
+                WebkitMaskSize: '100% 48px',
+                WebkitMaskRepeat: 'repeat',
+                maskImage: `radial-gradient(circle at 10px, transparent 10px, red 10.5px)`,
+                maskPosition: '-10px',
+                maskSize: '100% 48px',
+                maskRepeat: 'repeat',
               }}
             >
               {/* 上半部分 - 彩色背景区域 */}
@@ -352,15 +351,14 @@ export function FoodDiaryPage() {
             <div 
               className="absolute inset-0 bg-white shadow-2xl -z-10"
               style={{
-                WebkitMaskImage: `
-                  radial-gradient(circle at 50px 10px, transparent 10px, red 10.5px),
-                  radial-gradient(closest-side circle at 50%, red 99%, transparent 100%)
-                `,
-                WebkitMaskSize: `100%, 4px 12px`,
-                WebkitMaskRepeat: `repeat, repeat-y`,
-                WebkitMaskPosition: `0 -10px, 48px`,
-                WebkitMaskComposite: `source-out`,
-                maskComposite: `subtract`,
+                WebkitMaskImage: `radial-gradient(circle at 10px, transparent 10px, red 10.5px)`,
+                WebkitMaskPosition: '-10px',
+                WebkitMaskSize: '100% 48px',
+                WebkitMaskRepeat: 'repeat',
+                maskImage: `radial-gradient(circle at 10px, transparent 10px, red 10.5px)`,
+                maskPosition: '-10px',
+                maskSize: '100% 48px',
+                maskRepeat: 'repeat',
                 transform: 'scale(0.98)',
               }}
             />

@@ -107,7 +107,25 @@ export function DiaryWritePage() {
             
             // 始终以普通模式加载文字内容
             setIsPhotoMode(false);
-            setPages([{ leftContent: content, rightContent: '', leftColor: '#3a3a3a', rightColor: '#3a3a3a' }]);
+            
+            // 将内容按段落分割成多页
+            const paragraphs = content.split('\n\n');
+            const newPages = [];
+            for (let i = 0; i < paragraphs.length; i += 2) {
+              newPages.push({
+                leftContent: paragraphs[i] || '',
+                rightContent: paragraphs[i + 1] || '',
+                leftColor: '#3a3a3a',
+                rightColor: '#3a3a3a',
+              });
+            }
+            
+            // 如果没有段落，至少创建一页
+            if (newPages.length === 0) {
+              newPages.push({ leftContent: content, rightContent: '', leftColor: '#3a3a3a', rightColor: '#3a3a3a' });
+            }
+            
+            setPages(newPages);
             
             // 如果有照片，加载到照片页
             if (data.photo_url) {
@@ -378,8 +396,16 @@ export function DiaryWritePage() {
       const stickerElement = floatingElements.find(el => el.type === 'sticker');
       const stickerEmoji = stickerElement?.emoji;
       
-      // 生成摘要（取左页前 50 字）
-      const excerpt = leftContent.slice(0, 50) + (leftContent.length > 50 ? '...' : '');
+      // 合并所有页的内容
+      const allPagesContent = pages.map(page => {
+        const content = [];
+        if (page.leftContent) content.push(page.leftContent);
+        if (page.rightContent) content.push(page.rightContent);
+        return content.join('\n\n');
+      }).join('\n\n');
+      
+      // 生成摘要（取全部内容前 50 字）
+      const excerpt = allPagesContent.slice(0, 50) + (allPagesContent.length > 50 ? '...' : '');
       
       if (archiveId) {
         // 从归档卡片进入，更新原有记录
@@ -387,7 +413,7 @@ export function DiaryWritePage() {
           .from('diary_archives')
           .update({
             excerpt: excerpt,
-            full_content: leftContent,
+            full_content: allPagesContent,
             category: diaryCategory,
             weather: weather,
             word_count: totalChars,
@@ -403,7 +429,7 @@ export function DiaryWritePage() {
           date: dateParam,
           title: undefined,
           excerpt: excerpt,
-          full_content: leftContent,
+          full_content: allPagesContent,
           category: diaryCategory,
           weather: weather,
           word_count: totalChars,

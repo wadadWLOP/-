@@ -7,11 +7,13 @@ export interface ArchivedDiary {
   date: string;
   title?: string;
   excerpt?: string;
+  full_content?: string;
   weather?: string;
   word_count?: number;
   photo_url?: string;
   sticker_emoji?: string;
   background_color?: string;
+  category?: string;
   created_at?: string;
   archived_at?: string;
 }
