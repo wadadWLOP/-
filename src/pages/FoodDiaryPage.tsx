@@ -218,10 +218,20 @@ export function FoodDiaryPage() {
               : 'transform translate-y-0 opacity-100'
           }`}
         >
-          {/* 邮票外框 */}
-          <div className="bg-white rounded-sm p-4 shadow-2xl">
-            {/* 邮票齿孔效果 */}
-            <div className="relative">
+          {/* 邮票外框 - 锯齿效果 */}
+          <div className="relative">
+            {/* 邮票锯齿边框容器 */}
+            <div 
+              className="bg-white shadow-2xl relative"
+              style={{
+                clipPath: `polygon(
+                  0% 0%, 4% 0%, 5% 2%, 6% 0%, 10% 0%, 11% 2%, 12% 0%, 16% 0%, 17% 2%, 18% 0%, 22% 0%, 23% 2%, 24% 0%, 28% 0%, 29% 2%, 30% 0%, 34% 0%, 35% 2%, 36% 0%, 40% 0%, 41% 2%, 42% 0%, 46% 0%, 47% 2%, 48% 0%, 52% 0%, 53% 2%, 54% 0%, 58% 0%, 59% 2%, 60% 0%, 64% 0%, 65% 2%, 66% 0%, 70% 0%, 71% 2%, 72% 0%, 76% 0%, 77% 2%, 78% 0%, 82% 0%, 83% 2%, 84% 0%, 88% 0%, 89% 2%, 90% 0%, 94% 0%, 95% 2%, 96% 0%, 100% 0%,
+                  100% 4%, 100% 5%, 98% 6%, 100% 10%, 100% 11%, 98% 12%, 100% 16%, 100% 17%, 98% 18%, 100% 22%, 100% 23%, 98% 24%, 100% 28%, 100% 29%, 98% 30%, 100% 34%, 100% 35%, 98% 36%, 100% 40%, 100% 41%, 98% 42%, 100% 46%, 100% 47%, 98% 48%, 100% 52%, 100% 53%, 98% 54%, 100% 58%, 100% 59%, 98% 60%, 100% 64%, 100% 65%, 98% 66%, 100% 70%, 100% 71%, 98% 72%, 100% 76%, 100% 77%, 98% 78%, 100% 82%, 100% 83%, 98% 84%, 100% 88%, 100% 89%, 98% 90%, 100% 94%, 100% 95%, 98% 96%, 100% 100%,
+                  96% 100%, 95% 98%, 94% 100%, 90% 100%, 89% 98%, 88% 100%, 84% 100%, 83% 98%, 82% 100%, 78% 100%, 77% 98%, 76% 100%, 72% 100%, 71% 98%, 70% 100%, 66% 100%, 65% 98%, 64% 100%, 60% 100%, 59% 98%, 58% 100%, 54% 100%, 53% 98%, 52% 100%, 48% 100%, 47% 98%, 46% 100%, 42% 100%, 41% 98%, 40% 100%, 36% 100%, 35% 98%, 34% 100%, 30% 100%, 29% 98%, 28% 100%, 24% 100%, 23% 98%, 22% 100%, 18% 100%, 17% 98%, 16% 100%, 12% 100%, 11% 98%, 10% 100%, 6% 100%, 5% 98%, 4% 100%, 0% 100%,
+                  0% 96%, 2% 95%, 0% 94%, 0% 90%, 2% 89%, 0% 88%, 0% 84%, 2% 83%, 0% 82%, 0% 78%, 2% 77%, 0% 76%, 0% 72%, 2% 71%, 0% 70%, 0% 66%, 2% 65%, 0% 64%, 0% 60%, 2% 59%, 0% 58%, 0% 54%, 2% 53%, 0% 52%, 0% 48%, 2% 47%, 0% 46%, 0% 42%, 2% 41%, 0% 40%, 0% 36%, 2% 35%, 0% 34%, 0% 30%, 2% 29%, 0% 28%, 0% 24%, 2% 23%, 0% 22%, 0% 18%, 2% 17%, 0% 16%, 0% 12%, 2% 11%, 0% 10%, 0% 6%, 2% 5%, 0% 4%
+                )`,
+              }}
+            >
               {/* 上半部分 - 彩色背景区域 */}
               <div className={`bg-gradient-to-br ${getBgColor(currentEntry.rating)} p-6 pb-4 relative overflow-hidden`}>
                 {/* 纸质纹理 */}
@@ -281,73 +291,73 @@ export function FoodDiaryPage() {
                 </div>
               </div>
 
-              {/* 邮票齿孔 - 中间 */}
-              <div className="absolute left-0 right-0 top-[58%] -translate-y-1/2 flex justify-between px-3">
-                {Array.from({ length: 14 }).map((_, i) => (
-                  <div key={i} className="w-2.5 h-2.5 bg-[#f5f0eb] rounded-full shadow-inner" />
-                ))}
-              </div>
-            </div>
-
-            {/* 下半部分 - 白色区域 */}
-            <div className="pt-6 pb-3 px-3">
-              {/* 谁的好吃的 */}
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs bg-rose-50 text-rose-600 px-3 py-1.5 rounded-full font-medium flex items-center gap-1.5">
-                  <img 
-                    src={currentEntry.payer === 'qiuqiu' 
-                      ? "https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/icons/qiuqiu-icon.jpg"
-                      : "https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/icons/guozhi-icon.jpg"
-                    }
-                    alt={currentEntry.payer}
-                    className="w-4 h-4 object-cover rounded-full"
-                  />
-                  {currentEntry.payer === 'qiuqiu' ? "秋秋的好吃的" : "果汁的好吃的"}
-                </span>
-                
-                {/* 卡路里指示器 */}
-                <div className="flex items-center gap-2">
-                  <div className="w-20 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full ${
-                        currentEntry.calorieLevel < 30 ? 'bg-green-400' :
-                        currentEntry.calorieLevel < 60 ? 'bg-yellow-400' :
-                        'bg-gradient-to-r from-orange-400 to-red-400'
-                      }`}
-                      style={{ width: `${currentEntry.calorieLevel}%` }}
+              {/* 下半部分 - 白色区域 */}
+              <div className="pt-6 pb-3 px-3">
+                {/* 谁的好吃的 */}
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs bg-rose-50 text-rose-600 px-3 py-1.5 rounded-full font-medium flex items-center gap-1.5">
+                    <img 
+                      src={currentEntry.payer === 'qiuqiu' 
+                        ? "https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/icons/qiuqiu-icon.jpg"
+                        : "https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/icons/guozhi-icon.jpg"
+                      }
+                      alt={currentEntry.payer}
+                      className="w-4 h-4 object-cover rounded-full"
                     />
+                    {currentEntry.payer === 'qiuqiu' ? "秋秋的好吃的" : "果汁的好吃的"}
+                  </span>
+                  
+                  {/* 卡路里指示器 */}
+                  <div className="flex items-center gap-2">
+                    <div className="w-20 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full ${
+                          currentEntry.calorieLevel < 30 ? 'bg-green-400' :
+                          currentEntry.calorieLevel < 60 ? 'bg-yellow-400' :
+                          'bg-gradient-to-r from-orange-400 to-red-400'
+                        }`}
+                        style={{ width: `${currentEntry.calorieLevel}%` }}
+                      />
+                    </div>
                   </div>
                 </div>
+
+                {/* 标签 */}
+                {currentEntry.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mb-3">
+                    {currentEntry.tags.slice(0, 3).map((tag) => (
+                      <span
+                        key={tag}
+                        className="text-xs px-2.5 py-1 bg-gray-50 text-gray-500 rounded-sm font-mono"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* 点评 - 打字机字体 */}
+                {currentEntry.comment && (
+                  <p className="text-sm text-gray-500 font-mono leading-relaxed italic border-l-2 border-gray-200 pl-3">
+                    {currentEntry.comment}
+                  </p>
+                )}
               </div>
-
-              {/* 标签 */}
-              {currentEntry.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mb-3">
-                  {currentEntry.tags.slice(0, 3).map((tag) => (
-                    <span
-                      key={tag}
-                      className="text-xs px-2.5 py-1 bg-gray-50 text-gray-500 rounded-sm font-mono"
-                    >
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              {/* 点评 - 打字机字体 */}
-              {currentEntry.comment && (
-                <p className="text-sm text-gray-500 font-mono leading-relaxed italic border-l-2 border-gray-200 pl-3">
-                  {currentEntry.comment}
-                </p>
-              )}
             </div>
 
-            {/* 邮票齿孔 - 底部 */}
-            <div className="flex justify-between px-3 -mt-1 mb-1">
-              {Array.from({ length: 14 }).map((_, i) => (
-                <div key={i} className="w-2.5 h-2.5 bg-[#f5f0eb] rounded-full shadow-inner" />
-              ))}
-            </div>
+            {/* 邮票背景阴影层 */}
+            <div 
+              className="absolute inset-0 bg-white shadow-2xl -z-10"
+              style={{
+                clipPath: `polygon(
+                  0% 0%, 4% 0%, 5% 2%, 6% 0%, 10% 0%, 11% 2%, 12% 0%, 16% 0%, 17% 2%, 18% 0%, 22% 0%, 23% 2%, 24% 0%, 28% 0%, 29% 2%, 30% 0%, 34% 0%, 35% 2%, 36% 0%, 40% 0%, 41% 2%, 42% 0%, 46% 0%, 47% 2%, 48% 0%, 52% 0%, 53% 2%, 54% 0%, 58% 0%, 59% 2%, 60% 0%, 64% 0%, 65% 2%, 66% 0%, 70% 0%, 71% 2%, 72% 0%, 76% 0%, 77% 2%, 78% 0%, 82% 0%, 83% 2%, 84% 0%, 88% 0%, 89% 2%, 90% 0%, 94% 0%, 95% 2%, 96% 0%, 100% 0%,
+                  100% 4%, 100% 5%, 98% 6%, 100% 10%, 100% 11%, 98% 12%, 100% 16%, 100% 17%, 98% 18%, 100% 22%, 100% 23%, 98% 24%, 100% 28%, 100% 29%, 98% 30%, 100% 34%, 100% 35%, 98% 36%, 100% 40%, 100% 41%, 98% 42%, 100% 46%, 100% 47%, 98% 48%, 100% 52%, 100% 53%, 98% 54%, 100% 58%, 100% 59%, 98% 60%, 100% 64%, 100% 65%, 98% 66%, 100% 70%, 100% 71%, 98% 72%, 100% 76%, 100% 77%, 98% 78%, 100% 82%, 100% 83%, 98% 84%, 100% 88%, 100% 89%, 98% 90%, 100% 94%, 100% 95%, 98% 96%, 100% 100%,
+                  96% 100%, 95% 98%, 94% 100%, 90% 100%, 89% 98%, 88% 100%, 84% 100%, 83% 98%, 82% 100%, 78% 100%, 77% 98%, 76% 100%, 72% 100%, 71% 98%, 70% 100%, 66% 100%, 65% 98%, 64% 100%, 60% 100%, 59% 98%, 58% 100%, 54% 100%, 53% 98%, 52% 100%, 48% 100%, 47% 98%, 46% 100%, 42% 100%, 41% 98%, 40% 100%, 36% 100%, 35% 98%, 34% 100%, 30% 100%, 29% 98%, 28% 100%, 24% 100%, 23% 98%, 22% 100%, 18% 100%, 17% 98%, 16% 100%, 12% 100%, 11% 98%, 10% 100%, 6% 100%, 5% 98%, 4% 100%, 0% 100%,
+                  0% 96%, 2% 95%, 0% 94%, 0% 90%, 2% 89%, 0% 88%, 0% 84%, 2% 83%, 0% 82%, 0% 78%, 2% 77%, 0% 76%, 0% 72%, 2% 71%, 0% 70%, 0% 66%, 2% 65%, 0% 64%, 0% 60%, 2% 59%, 0% 58%, 0% 54%, 2% 53%, 0% 52%, 0% 48%, 2% 47%, 0% 46%, 0% 42%, 2% 41%, 0% 40%, 0% 36%, 2% 35%, 0% 34%, 0% 30%, 2% 29%, 0% 28%, 0% 24%, 2% 23%, 0% 22%, 0% 18%, 2% 17%, 0% 16%, 0% 12%, 2% 11%, 0% 10%, 0% 6%, 2% 5%, 0% 4%
+                )`,
+                transform: 'scale(0.98)',
+              }}
+            />
           </div>
         </div>
       </div>
