@@ -27,93 +27,132 @@ const payerLabels = {
 export function FoodCard({ entry }: { entry: FoodEntry }) {
   const timeAgo = getTimeAgo(new Date(entry.date));
 
-  const getCalorieColor = (level: number) => {
-    if (level < 30) return 'bg-green-400';
-    if (level < 60) return 'bg-yellow-400';
-    return 'bg-gradient-to-r from-orange-400 to-red-400';
-  };
-
-  const getRatingBg = (rating: string) => {
+  const getBgColor = (rating: string) => {
     switch (rating) {
-      case 'god': return 'from-pink-400 to-rose-400';
-      case 'yum': return 'from-orange-400 to-amber-400';
-      case 'ok': return 'from-gray-400 to-gray-500';
-      case 'bad': return 'from-purple-400 to-gray-600';
-      default: return 'from-gray-400 to-gray-500';
+      case 'god': return 'from-pink-100 to-rose-100';
+      case 'yum': return 'from-orange-100 to-amber-100';
+      case 'ok': return 'from-gray-100 to-slate-100';
+      case 'bad': return 'from-purple-100 to-gray-100';
+      default: return 'from-gray-100 to-slate-100';
     }
   };
 
   return (
-    <div className="bg-white/95 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg shadow-orange-100/40 border border-orange-100/30 hover:shadow-xl hover:scale-[1.02] hover:-translate-y-1 transition-all duration-300 cursor-pointer group">
-      <div className="relative overflow-hidden">
-        <img
-          src={entry.images[0] || 'https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/food/placeholder.jpg'}
-          alt={entry.name}
-          className="w-full aspect-[4/3] object-cover group-hover:scale-110 transition-transform duration-500"
-        />
-        {entry.rating === 'bad' && (
-          <div className="absolute top-2 right-2 bg-gradient-to-br from-purple-500 to-gray-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm shadow-lg animate-bounce">
-            💀
+    <div className="relative group cursor-pointer">
+      {/* 邮票外框 */}
+      <div className="bg-white rounded-lg p-3 shadow-lg hover:shadow-xl transition-shadow duration-300">
+        {/* 邮票锯齿效果 */}
+        <div className="relative">
+          {/* 上半部分 - 粉色背景区域 */}
+          <div className={`bg-gradient-to-br ${getBgColor(entry.rating)} rounded-t-lg p-4 relative overflow-hidden`}>
+            {/* 纸质纹理 */}
+            <div className="absolute inset-0 opacity-20" style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.5'/%3E%3C/svg%3E")`,
+            }} />
+            
+            {/* 标题 */}
+            <h3 className="font-bold text-gray-800 text-lg mb-3 relative z-10 line-clamp-1">
+              {entry.name}
+            </h3>
+
+            {/* 食物图片 - 白边抠图效果 */}
+            <div className="relative flex justify-center mb-3">
+              <div className="relative">
+                {/* 白色描边 */}
+                <div className="absolute inset-0 bg-white rounded-full blur-md transform scale-105" />
+                <div className="absolute inset-0 bg-white rounded-full transform scale-105" />
+                <img
+                  src={entry.images[0] || 'https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/food/placeholder.jpg'}
+                  alt={entry.name}
+                  className="w-40 h-40 object-cover rounded-full relative z-10 shadow-lg group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+            </div>
+
+            {/* 日期 */}
+            <div className="text-center">
+              <p className="text-gray-400 font-medium text-sm">{timeAgo}</p>
+            </div>
+
+            {/* 右侧竖排年份 */}
+            <div className="absolute right-2 bottom-10 transform rotate-90 origin-bottom-right">
+              <p className="text-gray-300 text-xs font-medium">
+                {new Date(entry.date).getFullYear()}
+              </p>
+            </div>
+
+            {/* 评分 emoji */}
+            <div className="absolute top-3 right-3 text-2xl animate-bounce">
+              {ratingEmojis[entry.rating]}
+            </div>
           </div>
-        )}
-        <div className={`absolute bottom-2 left-2 bg-gradient-to-r ${getRatingBg(entry.rating)} text-white rounded-full px-3 py-1.5 flex items-center gap-1.5 shadow-lg backdrop-blur-sm`}>
-          <span className="text-lg animate-pulse">{ratingEmojis[entry.rating]}</span>
-          <span className="text-xs font-bold">
-            {entry.rating === 'god' ? '封神' : entry.rating === 'yum' ? '好吃' : entry.rating === 'ok' ? '一般' : '踩雷'}
-          </span>
-        </div>
-      </div>
 
-      <div className="p-3.5 space-y-2.5">
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="font-bold text-gray-800 truncate flex-1 group-hover:text-orange-600 transition-colors">
-            {entry.name}
-          </h3>
-          <span className="text-xs bg-rose-50 text-rose-500 px-2 py-0.5 rounded-full font-medium">
-            {payerLabels[entry.payer]}
-          </span>
-        </div>
-
-        {entry.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {entry.tags.slice(0, 2).map((tag) => (
-              <span
-                key={tag}
-                className="text-xs px-2 py-1 bg-gradient-to-r from-orange-50 to-amber-50 text-orange-600 rounded-full border border-orange-100"
-              >
-                #{tag}
-              </span>
+          {/* 邮票齿孔效果 - 中间 */}
+          <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 flex justify-between px-2">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <div key={i} className="w-2 h-2 bg-white rounded-full shadow-sm" />
             ))}
           </div>
-        )}
-
-        <div className="flex items-center justify-between text-xs text-gray-400">
-          <span className="flex items-center gap-1">
-            <span className="w-1.5 h-1.5 bg-green-400 rounded-full" />
-            {timeAgo}
-          </span>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 text-xs">
-            {entry.calorieLevel < 50 ? (
-              <Leaf className="w-3.5 h-3.5 text-green-500" />
-            ) : (
-              <Flame className="w-3.5 h-3.5 text-orange-500" />
-            )}
+        {/* 下半部分 - 白色区域 */}
+        <div className="pt-8 pb-2 px-2">
+          {/* 付款人 */}
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <span className="text-xs bg-rose-50 text-rose-500 px-2 py-1 rounded-full font-medium">
+                {payerLabels[entry.payer]}
+              </span>
+            </div>
+            
+            {/* 卡路里指示器 */}
+            <div className="flex items-center gap-1.5">
+              {entry.calorieLevel < 50 ? (
+                <Leaf className="w-3.5 h-3.5 text-green-500" />
+              ) : (
+                <Flame className="w-3.5 h-3.5 text-orange-500" />
+              )}
+              <div className="w-16 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full ${
+                    entry.calorieLevel < 30 ? 'bg-green-400' :
+                    entry.calorieLevel < 60 ? 'bg-yellow-400' :
+                    'bg-gradient-to-r from-orange-400 to-red-400'
+                  }`}
+                  style={{ width: `${entry.calorieLevel}%` }}
+                />
+              </div>
+            </div>
           </div>
-          <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-            <div
-              className={`h-full rounded-full ${getCalorieColor(entry.calorieLevel)} transition-all duration-500`}
-              style={{ width: `${entry.calorieLevel}%` }}
-            />
-          </div>
-          <span className="text-xs font-medium text-gray-500">{entry.calorieLevel}%</span>
+
+          {/* 标签 */}
+          {entry.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1 mb-2">
+              {entry.tags.slice(0, 2).map((tag) => (
+                <span
+                  key={tag}
+                  className="text-xs px-2 py-0.5 bg-gray-50 text-gray-500 rounded-md"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* 点评 */}
+          {entry.comment && (
+            <p className="text-xs text-gray-400 line-clamp-2 leading-relaxed italic">
+              "{entry.comment}"
+            </p>
+          )}
         </div>
 
-        {entry.comment && (
-          <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed italic">"{entry.comment}"</p>
-        )}
+        {/* 底部齿孔效果 */}
+        <div className="flex justify-between px-2 -mt-1 mb-1">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <div key={i} className="w-2 h-2 bg-white rounded-full shadow-sm" />
+          ))}
+        </div>
       </div>
     </div>
   );
