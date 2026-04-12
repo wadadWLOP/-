@@ -25,17 +25,15 @@ const ratingOptions = [
 ];
 
 const payerOptions = [
-  { value: 'qiuqiu', label: '秋秋请客', emoji: '🎁' },
-  { value: 'guozhi', label: '果子请客', emoji: '🎁' },
-  { value: 'aa', label: 'AA', emoji: '💰' },
-  { value: 'parents', label: '爸妈买单', emoji: '👨‍👩‍👧' },
+  { value: 'qiuqiu', label: '秋秋', emoji: '🐱' },
+  { value: 'guozhi', label: '果汁', emoji: '🐹' },
 ];
 
 export function AddFoodModal({ onClose, onAdd, placeholder, quickTags }: AddFoodModalProps) {
   const [images, setImages] = useState<string[]>([]);
   const [name, setName] = useState('');
   const [rating, setRating] = useState<'yum' | 'ok' | 'bad' | 'god' | null>(null);
-  const [payer, setPayer] = useState<'qiuqiu' | 'guozhi' | 'aa' | 'parents'>('aa');
+  const [payer, setPayer] = useState<'qiuqiu' | 'guozhi'>('qiuqiu');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [calorieLevel, setCalorieLevel] = useState(50);
   const [comment, setComment] = useState('');
@@ -175,7 +173,7 @@ export function AddFoodModal({ onClose, onAdd, placeholder, quickTags }: AddFood
 
           <div>
             <p className="text-sm font-bold text-orange-600 mb-2">谁来买单？💰</p>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               {payerOptions.map((option) => (
                 <button
                   key={option.value}

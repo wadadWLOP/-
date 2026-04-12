@@ -5,7 +5,7 @@ interface FoodEntry {
   images: string[];
   name: string;
   rating: 'yum' | 'ok' | 'bad' | 'god';
-  payer: 'qiuqiu' | 'guozhi' | 'aa' | 'parents';
+  payer: 'qiuqiu' | 'guozhi';
   tags: string[];
   calorieLevel: number;
   date: string;
@@ -20,10 +20,8 @@ const ratingEmojis = {
 };
 
 const payerLabels = {
-  qiuqiu: '秋秋请客',
-  guozhi: '果子请客',
-  aa: 'AA',
-  parents: '爸妈买单',
+  qiuqiu: '秋秋',
+  guozhi: '果汁',
 };
 
 export function FoodCard({ entry }: { entry: FoodEntry }) {

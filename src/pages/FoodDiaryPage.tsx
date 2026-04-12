@@ -9,7 +9,7 @@ interface FoodEntry {
   images: string[];
   name: string;
   rating: 'yum' | 'ok' | 'bad' | 'god';
-  payer: 'qiuqiu' | 'guozhi' | 'aa' | 'parents';
+  payer: 'qiuqiu' | 'guozhi';
   tags: string[];
   calorieLevel: number;
   date: string;
@@ -53,7 +53,7 @@ const defaultEntries: FoodEntry[] = [
     images: ['https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/food/2.jpg'],
     name: '巷口那家超好吃的烧烤',
     rating: 'yum',
-    payer: 'aa',
+    payer: 'guozhi',
     tags: ['深夜放毒', '秋秋请客'],
     calorieLevel: 90,
     date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
