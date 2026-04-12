@@ -194,8 +194,8 @@ export function AddFoodModal({ onClose, onAdd, placeholder, quickTags }: AddFood
 
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <span className="text-lg">💰</span>
-              <p className="text-sm font-bold text-gray-700">谁来买单？</p>
+              <span className="text-lg">🍽️</span>
+              <p className="text-sm font-bold text-gray-700">谁的好吃的？</p>
             </div>
             <div className="grid grid-cols-2 gap-3">
               {payerOptions.map((option) => (

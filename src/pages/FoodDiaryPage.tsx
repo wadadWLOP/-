@@ -291,10 +291,10 @@ export function FoodDiaryPage() {
 
             {/* 下半部分 - 白色区域 */}
             <div className="pt-6 pb-3 px-3">
-              {/* 付款人 */}
+              {/* 谁的好吃的 */}
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs bg-rose-50 text-rose-600 px-3 py-1.5 rounded-full font-medium">
-                  {payerLabels[currentEntry.payer]}
+                  {currentEntry.payer === 'qiuqiu' ? "🐱 秋秋的好吃的" : "🐹 果汁的好吃的"}
                 </span>
                 
                 {/* 卡路里指示器 */}
