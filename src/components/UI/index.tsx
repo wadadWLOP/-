@@ -125,3 +125,5 @@ export { GlobalCatMenu } from './GlobalCatMenu';
 export { CoreFeaturesGrid } from './CoreFeaturesGrid';
 export { DatePickerModal } from './DatePickerModal';
 export { ScrapbookCard } from './ScrapbookCard';
+export { FoodCard } from './FoodCard';
+export { AddFoodModal } from './AddFoodModal';

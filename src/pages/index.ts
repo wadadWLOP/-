@@ -7,3 +7,4 @@ export { EditAnniversaryPage } from './EditAnniversaryPage';
 export { WishPage } from './WishPage';
 export { AlbumPage } from './AlbumPage';
 export { CheckinPage } from './CheckinPage';
+export { FoodDiaryPage } from './FoodDiaryPage';
