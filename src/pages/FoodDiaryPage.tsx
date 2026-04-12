@@ -219,39 +219,19 @@ export function FoodDiaryPage() {
           }`}
         >
           {/* 邮票外框 - 锯齿效果 */}
-          <div className="relative">
-            {/* 邮票背景阴影层 */}
-            <div 
-              className="absolute inset-0 bg-white shadow-2xl"
-              style={{
-                WebkitMaskImage: `radial-gradient(circle at 50px 10px, transparent 10px, red 10.5px), radial-gradient(closest-side circle at 50%, red 99%, transparent 100%)`,
-                WebkitMaskSize: `100%, 4px 12px`,
-                WebkitMaskRepeat: `repeat, repeat-y`,
-                WebkitMaskPosition: `0 -10px, 48px`,
-                WebkitMaskComposite: `source-out`,
-                maskImage: `radial-gradient(circle at 50px 10px, transparent 10px, red 10.5px), radial-gradient(closest-side circle at 50%, red 99%, transparent 100%)`,
-                maskSize: `100%, 4px 12px`,
-                maskRepeat: `repeat, repeat-y`,
-                maskPosition: `0 -10px, 48px`,
-                maskComposite: `subtract`,
-                transform: 'scale(0.98)',
-              }}
-            />
-            
+          <div className="relative p-6">
             {/* 邮票锯齿边框容器 */}
             <div 
-              className="bg-white shadow-2xl relative overflow-hidden"
+              className="bg-white shadow-2xl relative"
               style={{
-                WebkitMaskImage: `radial-gradient(circle at 50px 10px, transparent 10px, red 10.5px), radial-gradient(closest-side circle at 50%, red 99%, transparent 100%)`,
-                WebkitMaskSize: `100%, 4px 12px`,
-                WebkitMaskRepeat: `repeat, repeat-y`,
-                WebkitMaskPosition: `0 -10px, 48px`,
-                WebkitMaskComposite: `source-out`,
-                maskImage: `radial-gradient(circle at 50px 10px, transparent 10px, red 10.5px), radial-gradient(closest-side circle at 50%, red 99%, transparent 100%)`,
-                maskSize: `100%, 4px 12px`,
-                maskRepeat: `repeat, repeat-y`,
-                maskPosition: `0 -10px, 48px`,
-                maskComposite: `subtract`,
+                WebkitMaskImage: `radial-gradient(circle at 10px, transparent 10px, red 10.5px)`,
+                WebkitMaskPosition: '-10px',
+                WebkitMaskSize: '100% 48px',
+                WebkitMaskRepeat: 'repeat',
+                maskImage: `radial-gradient(circle at 10px, transparent 10px, red 10.5px)`,
+                maskPosition: '-10px',
+                maskSize: '100% 48px',
+                maskRepeat: 'repeat',
               }}
             >
               {/* 上半部分 - 彩色背景区域 */}
@@ -366,6 +346,22 @@ export function FoodDiaryPage() {
                 )}
               </div>
             </div>
+
+            {/* 邮票背景阴影层 */}
+            <div 
+              className="absolute inset-0 bg-white shadow-2xl -z-10"
+              style={{
+                WebkitMaskImage: `radial-gradient(circle at 10px, transparent 10px, red 10.5px)`,
+                WebkitMaskPosition: '-10px',
+                WebkitMaskSize: '100% 48px',
+                WebkitMaskRepeat: 'repeat',
+                maskImage: `radial-gradient(circle at 10px, transparent 10px, red 10.5px)`,
+                maskPosition: '-10px',
+                maskSize: '100% 48px',
+                maskRepeat: 'repeat',
+                transform: 'scale(0.98)',
+              }}
+            />
           </div>
         </div>
       </div>
