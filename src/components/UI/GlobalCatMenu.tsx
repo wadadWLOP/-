@@ -63,6 +63,8 @@ function DraggableCat({ framePrefix, initialLeft, initialTop, onRemove, catId }:
   const [frame, setFrame] = useState(1);
   const [isVisible, setIsVisible] = useState(true);
   const [showClose, setShowClose] = useState(false);
+  const [imageUrl, setImageUrl] = useState('');
+  const [retryCount, setRetryCount] = useState(0);
   const dragRef = useRef({ startX: 0, startY: 0, startLeft: 0, startTop: 0 });
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -74,6 +76,31 @@ function DraggableCat({ framePrefix, initialLeft, initialTop, onRemove, catId }:
       return () => clearInterval(interval);
     }
   }, [isDragging, isVisible, framePrefix]);
+
+  useEffect(() => {
+    // 构建图片 URL - 尝试所有可能的格式
+    const staticActions = ['sleep', 'fish', 'kiss'];
+    const isStaticAction = staticActions.includes(framePrefix);
+    
+    let url;
+    if (framePrefix === 'falling') {
+      url = `https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/max/falling.png`;
+    } else if (isStaticAction) {
+      // 静态动作：尝试 sleep.png, sleep1.png, sleep_1.png 等格式
+      const formats = [
+        `${framePrefix}.png`,
+        `${framePrefix}1.png`,
+        `${framePrefix}_1.png`,
+        `${framePrefix}_0.png`,
+      ];
+      url = `https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/max/${formats[retryCount % formats.length]}`;
+    } else {
+      // 动态动作：stand1.png, stand2.png, etc.
+      url = `https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/max/${framePrefix}${frame}.png`;
+    }
+    
+    setImageUrl(url);
+  }, [framePrefix, frame, retryCount]);
 
   useEffect(() => {
     const saved = localStorage.getItem(`__global_cat_pos_${catId}`);
@@ -118,11 +145,11 @@ function DraggableCat({ framePrefix, initialLeft, initialTop, onRemove, catId }:
 
   if (!isVisible) return null;
 
-  // 对于静态动作，直接使用动作名作为图片名
-  const staticActions = ['sleep', 'fish', 'kiss'];
-  const isStaticAction = staticActions.includes(framePrefix);
-  const frameNum = isStaticAction ? '' : frame;
-  const imageUrl = `https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/max/${framePrefix}${frameNum}.png`;
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    // 图片加载失败时，记录错误并尝试下一个 URL
+    console.error('图片加载失败:', e.currentTarget.src);
+    setRetryCount(prev => prev + 1);
+  };
 
   const handleClose = () => {
     setIsVisible(false);
@@ -144,7 +171,13 @@ function DraggableCat({ framePrefix, initialLeft, initialTop, onRemove, catId }:
       {showClose && (
         <button onClick={handleClose} className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs hover:bg-red-600 z-10">×</button>
       )}
-      <img src={imageUrl} alt={framePrefix} className="w-20 h-20 object-contain pointer-events-none" draggable={false} />
+      <img 
+        src={imageUrl} 
+        alt={framePrefix} 
+        className="w-20 h-20 object-contain pointer-events-none" 
+        draggable={false} 
+        onError={handleImageError}
+      />
     </div>
   );
 }
