@@ -105,7 +105,7 @@ export function CoreFeaturesGrid() {
                   className="w-full h-full absolute inset-0 object-cover"
                   style={{ objectPosition: 'center 30%' }}
                 />
-                <div className="absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm py-3 px-2">
+                <div className="absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm py-3 px-8">
                   <p className="text-base font-bold leading-tight text-center" style={{ color: '#4A4A4A' }}>
                     {banner.text}
                   </p>
@@ -127,7 +127,7 @@ export function CoreFeaturesGrid() {
             className="absolute left-3 top-12 w-[432px] h-56 object-cover border-2 border-black"
             style={{ transform: 'rotate(-3deg)', boxShadow: '10px 10px 20px rgba(0,0,0,0.5)' }}
           />
-          <div className="absolute right-40 top-1/2 -translate-y-1/2 text-center">
+          <div className="absolute right-5 top-1/2 -translate-y-1/2 text-right">
             <p className="text-2xl font-bold leading-relaxed" style={{ color: '#5D4037' }}>
               森林落入凡间的雨滴
             </p>

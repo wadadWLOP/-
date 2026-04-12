@@ -118,7 +118,11 @@ function DraggableCat({ framePrefix, initialLeft, initialTop, onRemove, catId }:
 
   if (!isVisible) return null;
 
-  const frameNum = framePrefix === 'falling' ? '' : frame;
+  // 对于静态动作，直接使用动作名作为图片名
+  const staticActions = ['sleep', 'fish', 'kiss'];
+  const isStaticAction = staticActions.includes(framePrefix);
+  const frameNum = isStaticAction ? '' : frame;
+  const imageUrl = `https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/max/${framePrefix}${frameNum}.png`;
 
   const handleClose = () => {
     setIsVisible(false);
@@ -140,7 +144,7 @@ function DraggableCat({ framePrefix, initialLeft, initialTop, onRemove, catId }:
       {showClose && (
         <button onClick={handleClose} className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs hover:bg-red-600 z-10">×</button>
       )}
-      <img src={`https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/max/${framePrefix}${frameNum}.png`} alt={framePrefix} className="w-20 h-20 object-contain pointer-events-none" draggable={false} />
+      <img src={imageUrl} alt={framePrefix} className="w-20 h-20 object-contain pointer-events-none" draggable={false} />
     </div>
   );
 }

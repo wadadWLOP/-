@@ -30,6 +30,8 @@ interface FloatingElement {
 interface PageData {
   leftContent: string;
   rightContent: string;
+  leftColor: string;
+  rightColor: string;
 }
 
 interface PhotoPageData {
@@ -44,7 +46,7 @@ export function DiaryWritePage() {
   const navigate = useNavigate();
   const dateParam = searchParams.get('date') || new Date().toISOString().split('T')[0];
   const archiveId = searchParams.get('archiveId');
-  const [pages, setPages] = useState<PageData[]>([{ leftContent: '', rightContent: '' }]);
+  const [pages, setPages] = useState<PageData[]>([{ leftContent: '', rightContent: '', leftColor: '#3a3a3a', rightColor: '#3a3a3a' }]);
   const [photoPages, setPhotoPages] = useState<PhotoPageData[]>([{ topImage: null, bottomImage: null, topDescription: '', bottomDescription: '' }]);
   const [currentPage, setCurrentPage] = useState(0);
   const [currentPhotoPage, setCurrentPhotoPage] = useState(0);
@@ -63,34 +65,15 @@ export function DiaryWritePage() {
   const [diaryCategory, setDiaryCategory] = useState<'qiuqiu' | 'guozhi' | ''>('');
   const [fontColor, setFontColor] = useState<string>('#3a3a3a');
   const [showColorPicker, setShowColorPicker] = useState(false);
-  const leftContentRef = useRef<HTMLDivElement>(null);
-  const rightContentRef = useRef<HTMLDivElement>(null);
+  const leftTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const rightTextareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const currentPageData = pages[currentPage] || { leftContent: '', rightContent: '' };
+  const currentPageData = pages[currentPage] || { leftContent: '', rightContent: '', leftColor: '#3a3a3a', rightColor: '#3a3a3a' };
   const leftContent = currentPageData.leftContent;
   const rightContent = currentPageData.rightContent;
+  const leftColor = currentPageData.leftColor;
+  const rightColor = currentPageData.rightColor;
   const totalChars = pages.reduce((acc, page) => acc + page.leftContent.length + page.rightContent.length, 0);
-
-  // 应用字体颜色到选中的文字
-  const applyFontColor = () => {
-    const selection = window.getSelection();
-    if (selection && selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      const span = document.createElement('span');
-      span.style.color = fontColor;
-      
-      try {
-        range.surroundContents(span);
-      } catch (e) {
-        // 如果选区跨越多个节点，使用更复杂的方式
-        document.execCommand('foreColor', false, fontColor);
-      }
-    } else {
-      // 没有选区，只改变之后输入的文字颜色
-      document.execCommand('styleWithCSS', false, 'true');
-      document.execCommand('foreColor', false, fontColor);
-    }
-  };
 
   const date = new Date(dateParam);
   const year = date.getFullYear();
@@ -124,33 +107,7 @@ export function DiaryWritePage() {
             
             // 始终以普通模式加载文字内容
             setIsPhotoMode(false);
-            setPages([{ leftContent: content, rightContent: '' }]);
-            
-            // 如果有照片，加载到照片页
-            if (data.photo_url) {
-              setPhotoPages([{
-                topImage: data.photo_url,
-                bottomImage: null,
-                topDescription: '',
-                bottomDescription: '',
-              }]);
-            }
-            
-            if (data.sticker_emoji) {
-              setFloatingElements([{
-                id: 'sticker-1',
-                type: 'sticker',
-                x: 250,
-                y: 80,
-                width: 60,
-                height: 60,
-                rotation: 10,
-                scale: 1,
-                zIndex: 2,
-                emoji: data.sticker_emoji,
-              }]);
-            }
-          }
+            setPages([{ leftContent: content, rightContent: '', leftColor: '#3a3a3a', rightColor: '#3a3a3a' }]);
             
             // 如果有照片，加载到照片页
             if (data.photo_url) {
@@ -249,17 +206,154 @@ export function DiaryWritePage() {
       const newPages = [...prev];
       newPages[currentPage] = { 
         leftContent: left, 
-        rightContent: right
+        rightContent: right,
+        leftColor: fontColor,
+        rightColor: fontColor
       };
       return newPages;
     });
   };
 
-  // 从 HTML 中提取纯文本
-  const extractTextFromHTML = (html: string) => {
-    const tmp = document.createElement('div');
-    tmp.innerHTML = html;
-    return tmp.textContent || tmp.innerText || '';
+  const handleLeftContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const textarea = e.target;
+    const newContent = e.target.value;
+    const hasOverflow = isOverflowing(textarea);
+    
+    if (hasOverflow && rightContent === '') {
+      const { kept, overflow } = getOverflowContent(textarea);
+      setPages(prev => {
+        const newPages = [...prev];
+        newPages[currentPage] = { 
+          leftContent: kept, 
+          rightContent: overflow,
+          leftColor: currentPageData.leftColor,
+          rightColor: currentPageData.leftColor // 溢出的文字使用相同的颜色
+        };
+        return newPages;
+      });
+      setTimeout(() => rightTextareaRef.current?.focus(), 50);
+    } else if (hasOverflow && rightContent !== '') {
+      const { kept, overflow } = getOverflowContent(textarea);
+      const newRight = overflow + (overflow ? '\n' : '') + rightContent;
+      setPages(prev => {
+        const newPages = [...prev];
+        newPages[currentPage] = { 
+          leftContent: kept, 
+          rightContent: newRight,
+          leftColor: currentPageData.leftColor,
+          rightColor: currentPageData.leftColor
+        };
+        return newPages;
+      });
+    } else if (!hasOverflow && rightContent !== '' && newContent.split('\n').length < MAX_LINES_PER_PAGE) {
+      const combined = newContent + '\n' + rightContent;
+      const tempTextarea = document.createElement('textarea');
+      tempTextarea.value = combined;
+      tempTextarea.style.lineHeight = getComputedStyle(e.target).lineHeight;
+      tempTextarea.style.width = getComputedStyle(e.target).width;
+      tempTextarea.style.height = getComputedStyle(e.target).height;
+      tempTextarea.style.visibility = 'hidden';
+      tempTextarea.style.position = 'absolute';
+      document.body.appendChild(tempTextarea);
+      
+      const { kept, overflow } = getOverflowContent(tempTextarea);
+      document.body.removeChild(tempTextarea);
+      
+      if (!overflow) {
+        setPages(prev => {
+          const newPages = [...prev];
+          newPages[currentPage] = { 
+            leftContent: combined, 
+            rightContent: '',
+            leftColor: currentPageData.leftColor,
+            rightColor: currentPageData.rightColor
+          };
+          return newPages;
+        });
+      } else {
+        setPages(prev => {
+          const newPages = [...prev];
+          newPages[currentPage] = { 
+            leftContent: kept, 
+            rightContent: overflow,
+            leftColor: currentPageData.leftColor,
+            rightColor: currentPageData.leftColor
+          };
+          return newPages;
+        });
+      }
+    } else {
+      updateCurrentPage(newContent, rightContent);
+    }
+  };
+
+  const handleRightContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const textarea = e.target;
+    const newContent = e.target.value;
+    const hasOverflow = isOverflowing(textarea);
+    
+    if (hasOverflow) {
+      const { kept, overflow } = getOverflowContent(textarea);
+      
+      if (currentPage < pages.length - 1) {
+        const nextPageData = pages[currentPage + 1];
+        setPages(prev => {
+          const newPages = [...prev];
+          newPages[currentPage] = { 
+            leftContent, 
+            rightContent: kept,
+            leftColor: currentPageData.leftColor,
+            rightColor: currentPageData.rightColor
+          };
+          newPages[currentPage + 1] = { 
+            leftContent: overflow, 
+            rightContent: nextPageData?.rightContent || '',
+            leftColor: currentPageData.rightColor, // 溢出到下一页的文字使用当前颜色
+            rightColor: nextPageData?.rightColor || currentPageData.rightColor
+          };
+          return newPages;
+        });
+        setCurrentPage(currentPage + 1);
+        setTimeout(() => {
+          if (leftTextareaRef.current) {
+            leftTextareaRef.current.focus();
+            leftTextareaRef.current.setSelectionRange(leftTextareaRef.current.value.length, leftTextareaRef.current.value.length);
+          }
+        }, 50);
+      } else {
+        setPages(prev => {
+          const newPages = [...prev];
+          newPages[currentPage] = { 
+            leftContent, 
+            rightContent: kept,
+            leftColor: currentPageData.leftColor,
+            rightColor: currentPageData.rightColor
+          };
+          newPages.push({ 
+            leftContent: overflow, 
+            rightContent: '',
+            leftColor: currentPageData.rightColor,
+            rightColor: currentPageData.rightColor
+          });
+          return newPages;
+        });
+        setCurrentPage(currentPage + 1);
+        setTimeout(() => {
+          if (leftTextareaRef.current) {
+            leftTextareaRef.current.focus();
+            leftTextareaRef.current.setSelectionRange(leftTextareaRef.current.value.length, leftTextareaRef.current.value.length);
+          }
+        }, 50);
+      }
+    } else {
+      updateCurrentPage(leftContent, newContent);
+    }
+  };
+
+  const handleRightKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Backspace' && rightContent === '' && leftContent !== '') {
+      updateCurrentPage(leftContent, '');
+    }
   };
 
   const handleArchive = async () => {
@@ -285,8 +379,7 @@ export function DiaryWritePage() {
       const stickerEmoji = stickerElement?.emoji;
       
       // 生成摘要（取左页前 50 字）
-      const plainText = extractTextFromHTML(leftContent);
-      const excerpt = plainText.slice(0, 50) + (plainText.length > 50 ? '...' : '');
+      const excerpt = leftContent.slice(0, 50) + (leftContent.length > 50 ? '...' : '');
       
       if (archiveId) {
         // 从归档卡片进入，更新原有记录
@@ -294,7 +387,7 @@ export function DiaryWritePage() {
           .from('diary_archives')
           .update({
             excerpt: excerpt,
-            full_content: leftContent, // 保存 HTML 以保留颜色信息
+            full_content: leftContent,
             category: diaryCategory,
             weather: weather,
             word_count: totalChars,
@@ -310,7 +403,7 @@ export function DiaryWritePage() {
           date: dateParam,
           title: undefined,
           excerpt: excerpt,
-          full_content: leftContent, // 保存 HTML 以保留颜色信息
+          full_content: leftContent,
           category: diaryCategory,
           weather: weather,
           word_count: totalChars,
@@ -337,7 +430,7 @@ export function DiaryWritePage() {
     if (currentPage < pages.length - 1) {
       setCurrentPage(currentPage + 1);
     } else {
-      setPages([...pages, { leftContent: '', rightContent: '' }]);
+      setPages([...pages, { leftContent: '', rightContent: '', leftColor: '#3a3a3a', rightColor: '#3a3a3a' }]);
       setCurrentPage(pages.length);
     }
   };
@@ -650,50 +743,76 @@ export function DiaryWritePage() {
               )}
 
               <div className="flex-1 overflow-hidden">
-                <div
-                  ref={leftContentRef}
-                  contentEditable
-                  suppressContentEditableWarning
-                  onInput={(e) => {
-                    const newContent = e.currentTarget.innerHTML;
-                    updateCurrentPage(newContent, rightContent);
-                  }}
-                  className="w-full h-full resize-none bg-transparent border-none outline-none text-sm placeholder:font-['乐米小奶泡体'] scrollbar-none"
-                  style={{
-                    lineHeight: '2.2',
-                    letterSpacing: '0.05em',
-                    fontFamily: '乐米小奶泡体',
-                  }}
-                  data-placeholder="在这里写下今天的故事..."
-                  dangerouslySetInnerHTML={{ __html: leftContent }}
-                />
+                <div className="relative w-full h-full">
+                  {/* 透明的 textarea，用于输入 */}
+                  <textarea
+                    ref={leftTextareaRef}
+                    value={leftContent}
+                    onChange={handleLeftContentChange}
+                    placeholder="在这里写下今天的故事..."
+                    className="absolute inset-0 w-full h-full resize-none bg-transparent border-none outline-none text-sm placeholder:font-['乐米小奶泡体'] scrollbar-none caret-[#3a3020]"
+                    style={{
+                      lineHeight: '2.2',
+                      letterSpacing: '0.05em',
+                      fontFamily: '乐米小奶泡体',
+                      color: 'transparent', // 文字透明
+                    }}
+                  />
+                  {/* 显示带颜色的文字层 */}
+                  <div
+                    className="absolute inset-0 w-full h-full text-sm pointer-events-none overflow-hidden"
+                    style={{
+                      lineHeight: '2.2',
+                      letterSpacing: '0.05em',
+                      fontFamily: '乐米小奶泡体',
+                      color: leftColor,
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-all',
+                    }}
+                  >
+                    {leftContent}
+                    {/* 显示 placeholder */}
+                    {!leftContent && (
+                      <span className="text-[#c0b0a0]">在这里写下今天的故事...</span>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
                 <div className={`w-1/2 p-6 pt-12 flex flex-col h-[500px] border-l ${rightContent ? 'border-[#e8dcc8]' : 'border-transparent'}`}>
                   <div className="flex-1 overflow-hidden relative">
-                    <div
-                      ref={rightContentRef}
-                      contentEditable
-                      suppressContentEditableWarning
-                      onInput={(e) => {
-                        const newContent = e.currentTarget.innerHTML;
-                        updateCurrentPage(leftContent, newContent);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Backspace' && !rightContent && leftContent) {
-                          e.preventDefault();
-                          updateCurrentPage(leftContent, '');
-                        }
-                      }}
-                      className={`w-full h-full resize-none bg-transparent border-none outline-none text-sm placeholder:font-['乐米小奶泡体'] scrollbar-none ${!rightContent ? 'opacity-40' : 'opacity-100'}`}
+                    {/* 透明的 textarea，用于输入 */}
+                    <textarea
+                      ref={rightTextareaRef}
+                      value={rightContent}
+                      onChange={handleRightContentChange}
+                      onKeyDown={handleRightKeyDown}
+                      placeholder={rightContent ? "" : "写满左页后将自动跳转到这里..."}
+                      className={`absolute inset-0 w-full h-full resize-none bg-transparent border-none outline-none text-sm placeholder:font-['乐米小奶泡体'] scrollbar-none caret-[#3a3020] ${!rightContent ? 'opacity-40' : 'opacity-100'}`}
                       style={{
                         lineHeight: '2.2',
                         letterSpacing: '0.05em',
                         fontFamily: '乐米小奶泡体',
+                        color: 'transparent',
                       }}
-                      data-placeholder="写满左页后将自动跳转到这里..."
-                      dangerouslySetInnerHTML={{ __html: rightContent }}
                     />
+                    {/* 显示带颜色的文字层 */}
+                    <div
+                      className="absolute inset-0 w-full h-full text-sm pointer-events-none overflow-hidden"
+                      style={{
+                        lineHeight: '2.2',
+                        letterSpacing: '0.05em',
+                        fontFamily: '乐米小奶泡体',
+                        color: rightColor,
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-all',
+                      }}
+                    >
+                      {rightContent}
+                      {!rightContent && (
+                        <span className="text-[#c0b0a0]">写满左页后将自动跳转到这里...</span>
+                      )}
+                    </div>
                     <div className="absolute top-4 right-4 text-xs text-[#a09080]" style={{ fontFamily: '乐米小奶泡体' }}>
                       {currentPage + 1}
                     </div>
@@ -870,10 +989,7 @@ export function DiaryWritePage() {
                     </button>
                     <div className="w-px h-4 bg-[#e0d8d0] mx-1" />
                     <button
-                      onClick={() => {
-                        applyFontColor();
-                        setShowColorPicker(!showColorPicker);
-                      }}
+                      onClick={() => setShowColorPicker(!showColorPicker)}
                       className="p-1.5 hover:bg-[#f0e8e0] rounded-full transition-colors relative"
                       title="字体颜色"
                     >
@@ -901,7 +1017,7 @@ export function DiaryWritePage() {
           {showStickerPicker && (
             <div className="absolute bottom-16 left-1/2 -translate-x-1/2 p-3 bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-[#e8dcc8] z-50 animate-fade-in">
               <div className="flex gap-1 flex-wrap justify-center max-w-[200px]">
-                {['🔥', '💕', '✨', '🌸', '⭐', '🌙', '💫', '🎀', '🌈', '🍀', '', '🐱', '🌺', '🍃', '💎', '🎵'].map((emoji) => (
+                {['🔥', '💕', '✨', '🌸', '⭐', '🌙', '', '🎀', '🌈', '🍀', '🦋', '', '🌺', '🍃', '💎', '🎵'].map((emoji) => (
                   <button
                     key={emoji}
                     onClick={() => {
@@ -939,6 +1055,9 @@ export function DiaryWritePage() {
                   />
                 ))}
               </div>
+              <p className="text-xs text-gray-500 mt-2 text-center" style={{ fontFamily: '乐米小奶泡体' }}>
+                提示：选择颜色后输入的文字将使用该颜色
+              </p>
             </div>
           )}
 
