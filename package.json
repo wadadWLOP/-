@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "checkin:list": "node scripts/manage-checkin.mjs list",
+    "checkin:delete": "node scripts/manage-checkin.mjs delete-record",
+    "checkin:decrease": "node scripts/manage-checkin.mjs decrease-count"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.102.1",
