@@ -110,7 +110,17 @@ export function DiaryWritePage() {
             setDiaryCategory(data.category || '');
                       // 始终以普通模式加载文字内容
             setIsPhotoMode(false);
-            setPages([{ leftContent: content, rightContent: '' }]);
+            
+            // 解析保存的内容，区分左右页
+            const pageContents = content.split('\n==========\n');
+            const parsedPages = pageContents.map(pageStr => {
+              const parts = pageStr.split('\n|||');
+              return {
+                leftContent: parts[0] || '',
+                rightContent: parts[1] || '',
+              };
+            });
+            setPages(parsedPages);
             
             // 如果有照片，加载到照片页
             if (data.photo_url) {
@@ -459,7 +469,7 @@ export function DiaryWritePage() {
       const excerpt = firstLeftContent.slice(0, 50) + (firstLeftContent.length > 50 ? '...' : '');
       
       // 合并所有页面的内容
-      const allContent = pages.map(p => p.leftContent + '\n' + p.rightContent).join('\n');
+      const allContent = pages.map(p => `${p.leftContent}\n|||${p.rightContent}`).join('\n==========\n');
       
       if (archiveId) {
         // 从归档卡片进入，更新原有记录
