@@ -1100,17 +1100,7 @@ export function DiaryWritePage() {
                       <Pencil className="w-4 h-4 text-[#5a4030]" />
                     </button>
                   </div>
-                </>
-              )}
-
-              {!isPhotoMode && (
-                <button
-                  onClick={goToNextPage}
-                  className="flex items-center gap-1 px-3 py-1 rounded-lg text-[#c45c3e] hover:bg-[#c45c3e]/10 transition-all"
-                  style={{ fontFamily: '乐米小奶泡体' }}
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
+              </>
               )}
             </div>
           </div>
