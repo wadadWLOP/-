@@ -737,7 +737,7 @@ export function DiaryWritePage() {
 
             {!isPhotoMode ? (
               <>
-                <div className="w-1/2 p-6 pt-12 flex flex-col h-[700px] relative">
+                <div className="w-1/2 p-6 pt-12 flex flex-col h-[400px] relative">
                   {currentPage === 0 && (
                   <div className="mb-2 flex-shrink-0">
                     {/* 日记分类选择 */}
@@ -897,7 +897,7 @@ export function DiaryWritePage() {
                 />
               </div>
             </div>
-                <div className={`w-1/2 p-6 pt-12 flex flex-col h-[700px] border-l ${rightContent ? 'border-[#e8dcc8]' : 'border-transparent'}`}>
+                <div className={`w-1/2 p-6 pt-12 flex flex-col h-[400px] border-l ${rightContent ? 'border-[#e8dcc8]' : 'border-transparent'}`}>
                   <div className="flex-1 overflow-hidden relative">
                     <textarea
                       ref={rightTextareaRef}
@@ -921,7 +921,7 @@ export function DiaryWritePage() {
             ) : (
               /* 照片模式：左右两页都显示照片上传区域 */
               <>
-                <div className="w-1/2 p-4 pt-12 flex flex-col h-[700px] relative border-r border-[#e8dcc8]">
+                <div className="w-1/2 p-4 pt-12 flex flex-col h-[400px] relative border-r border-[#e8dcc8]">
                   <div className="absolute top-4 left-4 text-xs text-[#a09080]" style={{ fontFamily: '乐米小奶泡体' }}>
                     第 {currentPhotoPage + 1} 页 · 左
                   </div>
@@ -938,7 +938,7 @@ export function DiaryWritePage() {
                     }}
                   />
                 </div>
-                <div className="w-1/2 p-4 pt-12 flex flex-col h-[700px] relative">
+                <div className="w-1/2 p-4 pt-12 flex flex-col h-[400px] relative">
                   <div className="absolute top-4 right-4 text-xs text-[#a09080]" style={{ fontFamily: '乐米小奶泡体' }}>
                     第 {currentPhotoPage + 1} 页 · 右
                   </div>
