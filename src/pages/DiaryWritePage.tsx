@@ -1118,56 +1118,55 @@ export function DiaryWritePage() {
       </div>
 
       {showStickerPicker && (
-            <div className="absolute bottom-16 left-1/2 -translate-x-1/2 p-3 bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-[#e8dcc8] z-50 animate-fade-in">
-              <div className="flex gap-1 flex-wrap justify-center max-w-[200px]">
-                {['🔥', '💕', '✨', '🌸', '⭐', '🌙', '💫', '🎀', '🌈', '🍀', '🦋', '🐱', '🌺', '🍃', '💎', '🎵'].map((emoji) => (
-                  <button
-                    key={emoji}
-                    onClick={() => {
-                      addFloatingElement('sticker', { emoji });
-                      setShowStickerPicker(false);
-                    }}
-                    className="p-2 hover:bg-[#f0e8e0] rounded-lg transition-all hover:scale-110 text-2xl"
-                  >
-                    {emoji}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* 归档确认弹窗 */}
-          {showArchiveConfirm && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-6" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-              <div
-                className="relative w-80 bg-gradient-to-b from-amber-50 to-yellow-50 p-8 rounded-2xl shadow-2xl text-center animate-bounce-in"
-                style={{
-                  backgroundColor: '#FFFBF0',
-                  border: '2px solid #F0E6D2',
+        <div className="absolute bottom-16 left-1/2 -translate-x-1/2 p-3 bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-[#e8dcc8] z-50 animate-fade-in">
+          <div className="flex gap-1 flex-wrap justify-center max-w-[200px]">
+            {['🔥', '💕', '✨', '🌸', '⭐', '🌙', '💫', '🎀', '🌈', '🍀', '🦋', '🐱', '🌺', '🍃', '💎', '🎵'].map((emoji) => (
+              <button
+                key={emoji}
+                onClick={() => {
+                  addFloatingElement('sticker', { emoji });
+                  setShowStickerPicker(false);
                 }}
+                className="p-2 hover:bg-[#f0e8e0] rounded-lg transition-all hover:scale-110 text-2xl"
               >
-                {/* 胶带装饰 */}
-                <div
-                  className="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-6"
-                  style={{
-                    backgroundColor: 'rgba(255, 182, 193, 0.6)',
-                    border: '1px dashed rgba(255,255,255,0.4)',
-                  }}
-                />
+                {emoji}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
-                <div className="text-6xl mb-4 animate-pulse">✨</div>
-                <h3 className="text-xl font-bold mb-2" style={{ color: '#8B4513', fontFamily: 'cursive' }}>
-                  归档成功！
-                </h3>
-                <p className="text-sm text-gray-500 mb-4">
-                  日记已存入时光胶囊
-                </p>
-                <div className="text-xs text-gray-400">
-                  即将返回日记列表...
-                </div>
-              </div>
+      {showArchiveConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div
+            className="relative w-80 bg-gradient-to-b from-amber-50 to-yellow-50 p-8 rounded-2xl shadow-2xl text-center animate-bounce-in"
+            style={{
+              backgroundColor: '#FFFBF0',
+              border: '2px solid #F0E6D2',
+            }}
+          >
+            {/* 胶带装饰 */}
+            <div
+              className="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-6"
+              style={{
+                backgroundColor: 'rgba(255, 182, 193, 0.6)',
+                border: '1px dashed rgba(255,255,255,0.4)',
+              }}
+            />
+
+            <div className="text-6xl mb-4 animate-pulse">✨</div>
+            <h3 className="text-xl font-bold mb-2" style={{ color: '#8B4513', fontFamily: 'cursive' }}>
+              归档成功！
+            </h3>
+            <p className="text-sm text-gray-500 mb-4">
+              日记已存入时光胶囊
+            </p>
+            <div className="text-xs text-gray-400">
+              即将返回日记列表...
             </div>
-          )}
+          </div>
+        </div>
+      )}
 
       {(showStickerPicker || showArchiveConfirm) && (
         <div className="fixed inset-0 z-30" onClick={() => {}} />
