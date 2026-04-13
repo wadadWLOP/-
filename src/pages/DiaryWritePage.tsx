@@ -1101,8 +1101,7 @@ export function DiaryWritePage() {
                     </button>
                   </div>
               </>
-              )}
-            </div>
+            )}
           </div>
         </div>
       </div>
