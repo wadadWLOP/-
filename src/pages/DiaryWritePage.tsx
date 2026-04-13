@@ -30,8 +30,6 @@ interface FloatingElement {
 interface PageData {
   leftContent: string;
   rightContent: string;
-  leftColor: string;
-  rightColor: string;
 }
 
 interface PhotoPageData {
@@ -46,7 +44,7 @@ export function DiaryWritePage() {
   const navigate = useNavigate();
   const dateParam = searchParams.get('date') || new Date().toISOString().split('T')[0];
   const archiveId = searchParams.get('archiveId');
-  const [pages, setPages] = useState<PageData[]>([{ leftContent: '', rightContent: '', leftColor: '#3a3a3a', rightColor: '#3a3a3a' }]);
+  const [pages, setPages] = useState<PageData[]>([{ leftContent: '', rightContent: '' }]);
   const [photoPages, setPhotoPages] = useState<PhotoPageData[]>([{ topImage: null, bottomImage: null, topDescription: '', bottomDescription: '' }]);
   const [currentPage, setCurrentPage] = useState(0);
   const [currentPhotoPage, setCurrentPhotoPage] = useState(0);
@@ -63,16 +61,12 @@ export function DiaryWritePage() {
   const [isArchiving, setIsArchiving] = useState(false);
   const [loading, setLoading] = useState(false);
   const [diaryCategory, setDiaryCategory] = useState<'qiuqiu' | 'guozhi' | ''>('');
-  const [fontColor, setFontColor] = useState<string>('#3a3a3a');
-  const [showColorPicker, setShowColorPicker] = useState(false);
   const leftTextareaRef = useRef<HTMLTextAreaElement>(null);
   const rightTextareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const currentPageData = pages[currentPage] || { leftContent: '', rightContent: '', leftColor: '#3a3a3a', rightColor: '#3a3a3a' };
+  const currentPageData = pages[currentPage] || { leftContent: '', rightContent: '' };
   const leftContent = currentPageData.leftContent;
   const rightContent = currentPageData.rightContent;
-  const leftColor = currentPageData.leftColor;
-  const rightColor = currentPageData.rightColor;
   const totalChars = pages.reduce((acc, page) => acc + page.leftContent.length + page.rightContent.length, 0);
 
   const date = new Date(dateParam);
@@ -107,25 +101,7 @@ export function DiaryWritePage() {
             
             // 始终以普通模式加载文字内容
             setIsPhotoMode(false);
-            
-            // 将内容按段落分割成多页
-            const paragraphs = content.split('\n\n');
-            const newPages = [];
-            for (let i = 0; i < paragraphs.length; i += 2) {
-              newPages.push({
-                leftContent: paragraphs[i] || '',
-                rightContent: paragraphs[i + 1] || '',
-                leftColor: '#3a3a3a',
-                rightColor: '#3a3a3a',
-              });
-            }
-            
-            // 如果没有段落，至少创建一页
-            if (newPages.length === 0) {
-              newPages.push({ leftContent: content, rightContent: '', leftColor: '#3a3a3a', rightColor: '#3a3a3a' });
-            }
-            
-            setPages(newPages);
+            setPages([{ leftContent: content, rightContent: '' }]);
             
             // 如果有照片，加载到照片页
             if (data.photo_url) {
@@ -224,9 +200,7 @@ export function DiaryWritePage() {
       const newPages = [...prev];
       newPages[currentPage] = { 
         leftContent: left, 
-        rightContent: right,
-        leftColor: fontColor,
-        rightColor: fontColor
+        rightContent: right
       };
       return newPages;
     });
@@ -239,30 +213,12 @@ export function DiaryWritePage() {
     
     if (hasOverflow && rightContent === '') {
       const { kept, overflow } = getOverflowContent(textarea);
-      setPages(prev => {
-        const newPages = [...prev];
-        newPages[currentPage] = { 
-          leftContent: kept, 
-          rightContent: overflow,
-          leftColor: currentPageData.leftColor,
-          rightColor: currentPageData.leftColor // 溢出的文字使用相同的颜色
-        };
-        return newPages;
-      });
+      updateCurrentPage(kept, overflow);
       setTimeout(() => rightTextareaRef.current?.focus(), 50);
     } else if (hasOverflow && rightContent !== '') {
       const { kept, overflow } = getOverflowContent(textarea);
       const newRight = overflow + (overflow ? '\n' : '') + rightContent;
-      setPages(prev => {
-        const newPages = [...prev];
-        newPages[currentPage] = { 
-          leftContent: kept, 
-          rightContent: newRight,
-          leftColor: currentPageData.leftColor,
-          rightColor: currentPageData.leftColor
-        };
-        return newPages;
-      });
+      updateCurrentPage(kept, newRight);
     } else if (!hasOverflow && rightContent !== '' && newContent.split('\n').length < MAX_LINES_PER_PAGE) {
       const combined = newContent + '\n' + rightContent;
       const tempTextarea = document.createElement('textarea');
@@ -278,27 +234,9 @@ export function DiaryWritePage() {
       document.body.removeChild(tempTextarea);
       
       if (!overflow) {
-        setPages(prev => {
-          const newPages = [...prev];
-          newPages[currentPage] = { 
-            leftContent: combined, 
-            rightContent: '',
-            leftColor: currentPageData.leftColor,
-            rightColor: currentPageData.rightColor
-          };
-          return newPages;
-        });
+        updateCurrentPage(combined, '');
       } else {
-        setPages(prev => {
-          const newPages = [...prev];
-          newPages[currentPage] = { 
-            leftContent: kept, 
-            rightContent: overflow,
-            leftColor: currentPageData.leftColor,
-            rightColor: currentPageData.leftColor
-          };
-          return newPages;
-        });
+        updateCurrentPage(kept, overflow);
       }
     } else {
       updateCurrentPage(newContent, rightContent);
@@ -317,17 +255,10 @@ export function DiaryWritePage() {
         const nextPageData = pages[currentPage + 1];
         setPages(prev => {
           const newPages = [...prev];
-          newPages[currentPage] = { 
-            leftContent, 
-            rightContent: kept,
-            leftColor: currentPageData.leftColor,
-            rightColor: currentPageData.rightColor
-          };
+          newPages[currentPage] = { leftContent, rightContent: kept };
           newPages[currentPage + 1] = { 
             leftContent: overflow, 
-            rightContent: nextPageData?.rightContent || '',
-            leftColor: currentPageData.rightColor, // 溢出到下一页的文字使用当前颜色
-            rightColor: nextPageData?.rightColor || currentPageData.rightColor
+            rightContent: nextPageData?.rightContent || ''
           };
           return newPages;
         });
@@ -341,18 +272,8 @@ export function DiaryWritePage() {
       } else {
         setPages(prev => {
           const newPages = [...prev];
-          newPages[currentPage] = { 
-            leftContent, 
-            rightContent: kept,
-            leftColor: currentPageData.leftColor,
-            rightColor: currentPageData.rightColor
-          };
-          newPages.push({ 
-            leftContent: overflow, 
-            rightContent: '',
-            leftColor: currentPageData.rightColor,
-            rightColor: currentPageData.rightColor
-          });
+          newPages[currentPage] = { leftContent, rightContent: kept };
+          newPages.push({ leftContent: overflow, rightContent: '' });
           return newPages;
         });
         setCurrentPage(currentPage + 1);
@@ -396,16 +317,8 @@ export function DiaryWritePage() {
       const stickerElement = floatingElements.find(el => el.type === 'sticker');
       const stickerEmoji = stickerElement?.emoji;
       
-      // 合并所有页的内容
-      const allPagesContent = pages.map(page => {
-        const content = [];
-        if (page.leftContent) content.push(page.leftContent);
-        if (page.rightContent) content.push(page.rightContent);
-        return content.join('\n\n');
-      }).join('\n\n');
-      
-      // 生成摘要（取全部内容前 50 字）
-      const excerpt = allPagesContent.slice(0, 50) + (allPagesContent.length > 50 ? '...' : '');
+      // 生成摘要（取左页前 50 字）
+      const excerpt = leftContent.slice(0, 50) + (leftContent.length > 50 ? '...' : '');
       
       if (archiveId) {
         // 从归档卡片进入，更新原有记录
@@ -413,7 +326,7 @@ export function DiaryWritePage() {
           .from('diary_archives')
           .update({
             excerpt: excerpt,
-            full_content: allPagesContent,
+            full_content: leftContent,
             category: diaryCategory,
             weather: weather,
             word_count: totalChars,
@@ -429,7 +342,7 @@ export function DiaryWritePage() {
           date: dateParam,
           title: undefined,
           excerpt: excerpt,
-          full_content: allPagesContent,
+          full_content: leftContent,
           category: diaryCategory,
           weather: weather,
           word_count: totalChars,
@@ -456,7 +369,7 @@ export function DiaryWritePage() {
     if (currentPage < pages.length - 1) {
       setCurrentPage(currentPage + 1);
     } else {
-      setPages([...pages, { leftContent: '', rightContent: '', leftColor: '#3a3a3a', rightColor: '#3a3a3a' }]);
+      setPages([...pages, { leftContent: '', rightContent: '' }]);
       setCurrentPage(pages.length);
     }
   };
@@ -769,76 +682,35 @@ export function DiaryWritePage() {
               )}
 
               <div className="flex-1 overflow-hidden">
-                <div className="relative w-full h-full">
-                  {/* 透明的 textarea，用于输入 */}
-                  <textarea
-                    ref={leftTextareaRef}
-                    value={leftContent}
-                    onChange={handleLeftContentChange}
-                    placeholder="在这里写下今天的故事..."
-                    className="absolute inset-0 w-full h-full resize-none bg-transparent border-none outline-none text-sm placeholder:font-['乐米小奶泡体'] scrollbar-none caret-[#3a3020]"
-                    style={{
-                      lineHeight: '2.2',
-                      letterSpacing: '0.05em',
-                      fontFamily: '乐米小奶泡体',
-                      color: 'transparent', // 文字透明
-                    }}
-                  />
-                  {/* 显示带颜色的文字层 */}
-                  <div
-                    className="absolute inset-0 w-full h-full text-sm pointer-events-none overflow-hidden"
-                    style={{
-                      lineHeight: '2.2',
-                      letterSpacing: '0.05em',
-                      fontFamily: '乐米小奶泡体',
-                      color: leftColor,
-                      whiteSpace: 'pre-wrap',
-                      wordBreak: 'break-all',
-                    }}
-                  >
-                    {leftContent}
-                    {/* 显示 placeholder */}
-                    {!leftContent && (
-                      <span className="text-[#c0b0a0]">在这里写下今天的故事...</span>
-                    )}
-                  </div>
-                </div>
+                <textarea
+                  ref={leftTextareaRef}
+                  value={leftContent}
+                  onChange={handleLeftContentChange}
+                  placeholder="在这里写下今天的故事..."
+                  className="w-full h-full resize-none bg-transparent border-none outline-none text-sm text-[#3a3020] placeholder:text-[#c0b0a0] placeholder:font-['乐米小奶泡体'] scrollbar-none"
+                  style={{
+                    lineHeight: '2.2',
+                    letterSpacing: '0.05em',
+                    fontFamily: '乐米小奶泡体',
+                  }}
+                />
               </div>
             </div>
                 <div className={`w-1/2 p-6 pt-12 flex flex-col h-[500px] border-l ${rightContent ? 'border-[#e8dcc8]' : 'border-transparent'}`}>
                   <div className="flex-1 overflow-hidden relative">
-                    {/* 透明的 textarea，用于输入 */}
                     <textarea
                       ref={rightTextareaRef}
                       value={rightContent}
                       onChange={handleRightContentChange}
                       onKeyDown={handleRightKeyDown}
                       placeholder={rightContent ? "" : "写满左页后将自动跳转到这里..."}
-                      className={`absolute inset-0 w-full h-full resize-none bg-transparent border-none outline-none text-sm placeholder:font-['乐米小奶泡体'] scrollbar-none caret-[#3a3020] ${!rightContent ? 'opacity-40' : 'opacity-100'}`}
+                      className={`w-full h-full resize-none bg-transparent border-none outline-none text-sm text-[#3a3020] placeholder:text-[#c0b0a0] placeholder:font-['乐米小奶泡体'] scrollbar-none ${!rightContent ? 'opacity-40' : 'opacity-100'}`}
                       style={{
                         lineHeight: '2.2',
                         letterSpacing: '0.05em',
                         fontFamily: '乐米小奶泡体',
-                        color: 'transparent',
                       }}
                     />
-                    {/* 显示带颜色的文字层 */}
-                    <div
-                      className="absolute inset-0 w-full h-full text-sm pointer-events-none overflow-hidden"
-                      style={{
-                        lineHeight: '2.2',
-                        letterSpacing: '0.05em',
-                        fontFamily: '乐米小奶泡体',
-                        color: rightColor,
-                        whiteSpace: 'pre-wrap',
-                        wordBreak: 'break-all',
-                      }}
-                    >
-                      {rightContent}
-                      {!rightContent && (
-                        <span className="text-[#c0b0a0]">写满左页后将自动跳转到这里...</span>
-                      )}
-                    </div>
                     <div className="absolute top-4 right-4 text-xs text-[#a09080]" style={{ fontFamily: '乐米小奶泡体' }}>
                       {currentPage + 1}
                     </div>
@@ -1013,17 +885,6 @@ export function DiaryWritePage() {
                     >
                       <Pencil className="w-4 h-4 text-[#5a4030]" />
                     </button>
-                    <div className="w-px h-4 bg-[#e0d8d0] mx-1" />
-                    <button
-                      onClick={() => setShowColorPicker(!showColorPicker)}
-                      className="p-1.5 hover:bg-[#f0e8e0] rounded-full transition-colors relative"
-                      title="字体颜色"
-                    >
-                      <div 
-                        className="w-4 h-4 rounded-full border-2 border-white shadow-sm"
-                        style={{ backgroundColor: fontColor }}
-                      />
-                    </button>
                   </div>
                 </>
               )}
@@ -1043,7 +904,7 @@ export function DiaryWritePage() {
           {showStickerPicker && (
             <div className="absolute bottom-16 left-1/2 -translate-x-1/2 p-3 bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-[#e8dcc8] z-50 animate-fade-in">
               <div className="flex gap-1 flex-wrap justify-center max-w-[200px]">
-                {['🔥', '💕', '✨', '🌸', '⭐', '🌙', '', '🎀', '🌈', '🍀', '🦋', '', '🌺', '🍃', '💎', '🎵'].map((emoji) => (
+                {['🔥', '💕', '✨', '🌸', '⭐', '🌙', '💫', '🎀', '🌈', '🍀', '🦋', '🐱', '🌺', '🍃', '💎', '🎵'].map((emoji) => (
                   <button
                     key={emoji}
                     onClick={() => {
@@ -1056,34 +917,6 @@ export function DiaryWritePage() {
                   </button>
                 ))}
               </div>
-            </div>
-          )}
-
-          {showColorPicker && (
-            <div className="absolute bottom-16 left-1/2 -translate-x-1/2 p-3 bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-[#e8dcc8] z-50 animate-fade-in">
-              <div className="grid grid-cols-5 gap-2">
-                {[
-                  '#3a3a3a', '#c45c3e', '#e67e22', '#d35400', '#f39c12',
-                  '#27ae60', '#16a085', '#2980b9', '#8e44ad', '#c0392b',
-                  '#ff6b6b', '#ff8e72', '#ffa502', '#f7d794', '#70a1ff',
-                  '#5352ed', '#a55eea', '#fd79a8', '#636e72', '#2d3436'
-                ].map((color) => (
-                  <button
-                    key={color}
-                    onClick={() => {
-                      setFontColor(color);
-                      setShowColorPicker(false);
-                    }}
-                    className={`w-8 h-8 rounded-full border-2 transition-all hover:scale-110 ${
-                      fontColor === color ? 'border-gray-600 scale-110 shadow-md' : 'border-white'
-                    }`}
-                    style={{ backgroundColor: color }}
-                  />
-                ))}
-              </div>
-              <p className="text-xs text-gray-500 mt-2 text-center" style={{ fontFamily: '乐米小奶泡体' }}>
-                提示：选择颜色后输入的文字将使用该颜色
-              </p>
             </div>
           )}
 
