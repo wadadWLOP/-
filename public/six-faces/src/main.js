@@ -8,7 +8,13 @@ const IMAGE_SRCS = [
 ];
 
 const CUSTOM_IMAGES_KEY = 'six-faces-custom-images';
-const UPLOAD_API_URL = '/api/upload-to-cos';
+
+const cos = new COS({
+  SecretId: window.VITE_TENCENT_SECRET_ID || 'YOUR_SECRET_ID',
+  SecretKey: window.VITE_TENCENT_SECRET_KEY || 'YOUR_SECRET_KEY',
+  Bucket: 'juiceqiuqiu-1420133198',
+  Region: 'ap-shanghai'
+});
 
 const loadCustomImages = () => {
   try {
@@ -34,49 +40,55 @@ const saveCustomImage = (faceIndex, dataUrl, callback) => {
     uploadBtn.innerHTML = '<svg class="animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>';
   }
   
-  fetch(UPLOAD_API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      image: dataUrl,
-      faceIndex: faceIndex
-    })
-  })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error('Upload failed');
+  const base64Data = dataUrl.split(',')[1];
+  const blob = base64ToBlob(base64Data, 'image/png');
+  const key = `six-faces/face-${faceIndex}-${Date.now()}.png`;
+  
+  cos.putObject({
+    Bucket: 'juiceqiuqiu-1420133198',
+    Region: 'ap-shanghai',
+    Key: key,
+    StorageClass: 'STANDARD',
+    Body: blob,
+    onProgress: function(progressData) {
+      console.log('上传进度:', progressData.percent);
     }
-    return response.json();
-  })
-  .then(data => {
-    if (data.url) {
+  }, function(err, data) {
+    if (uploadBtn) {
+      uploadBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>';
+    }
+    
+    if (err) {
+      console.error('上传失败:', err);
+      alert('上传失败：' + err.message);
+      callback(false, null);
+    } else {
+      const url = `https://${data.Location}`;
+      console.log('上传成功:', url);
+      
       try {
         const saved = localStorage.getItem(CUSTOM_IMAGES_KEY);
         const customImages = saved ? JSON.parse(saved) : new Array(6).fill(null);
-        customImages[faceIndex] = data.url;
+        customImages[faceIndex] = url;
         localStorage.setItem(CUSTOM_IMAGES_KEY, JSON.stringify(customImages));
-        IMAGE_SRCS[faceIndex] = data.url;
-        callback(true, data.url);
+        IMAGE_SRCS[faceIndex] = url;
+        callback(true, url);
       } catch (e) {
         console.error('Failed to save to localStorage:', e);
         callback(false, null);
       }
-    } else {
-      callback(false, null);
-    }
-  })
-  .catch(error => {
-    console.error('Upload error:', error);
-    alert('上传失败，请重试');
-    callback(false, null);
-  })
-  .finally(() => {
-    if (uploadBtn) {
-      uploadBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>';
     }
   });
+};
+
+const base64ToBlob = (base64, mimeType) => {
+  const byteCharacters = atob(base64);
+  const byteNumbers = new Array(byteCharacters.length);
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+  const byteArray = new Uint8Array(byteNumbers);
+  return new Blob([byteArray], { type: mimeType });
 };
 
 const IMAGE_ASPECTS = [1, 1, 1, 1, 1, 1];
