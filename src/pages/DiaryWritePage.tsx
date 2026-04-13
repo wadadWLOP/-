@@ -910,6 +910,7 @@ export function DiaryWritePage() {
                   }}
                 />
               </div>
+            </div>
                 <div className={`w-1/2 p-6 pt-12 flex flex-col h-[450px] border-l ${rightContent ? 'border-[#e8dcc8]' : 'border-transparent'}`}>
                   <div className="flex-1 overflow-hidden relative">
                     <textarea
@@ -985,6 +986,21 @@ export function DiaryWritePage() {
               {isPhotoMode && (
                 <>
                   <button
+                    onClick={handleArchive}
+                    disabled={isArchiving || totalChars === 0}
+                    className={`flex items-center gap-1 px-4 py-2 rounded-lg text-sm transition-all ${
+                      isArchiving || totalChars === 0
+                        ? 'text-gray-300 cursor-not-allowed'
+                        : 'text-[#c45c3e] hover:bg-[#c45c3e]/10'
+                    }`}
+                    style={{ fontFamily: '乐米小奶泡体' }}
+                    title="归档日记"
+                  >
+                    <Archive className="w-4 h-4" />
+                    <span>{isArchiving ? '归档中...' : '归档'}</span>
+                  </button>
+
+                  <button
                     onClick={() => setCurrentPhotoPage(Math.max(0, currentPhotoPage - 1))}
                     disabled={currentPhotoPage === 0}
                     className={`flex items-center gap-1 px-3 py-1 rounded-lg text-sm transition-all ${
@@ -1023,39 +1039,40 @@ export function DiaryWritePage() {
                 </>
               )}
 
-              <button
-                onClick={handleArchive}
-                disabled={isArchiving || totalChars === 0}
-                className={`flex items-center gap-1 px-4 py-2 rounded-lg text-sm transition-all ${
-                  isArchiving || totalChars === 0
-                    ? 'text-gray-300 cursor-not-allowed'
-                    : 'text-[#c45c3e] hover:bg-[#c45c3e]/10'
-                }`}
-                style={{ fontFamily: '乐米小奶泡体' }}
-                title="归档日记"
-              >
-                <Archive className="w-4 h-4" />
-                <span>{isArchiving ? '归档中...' : '归档'}</span>
-              </button>
+              {!isPhotoMode && (
+                <>
+                  <button
+                    onClick={handleArchive}
+                    disabled={isArchiving || totalChars === 0}
+                    className={`flex items-center gap-1 px-4 py-2 rounded-lg text-sm transition-all ${
+                      isArchiving || totalChars === 0
+                        ? 'text-gray-300 cursor-not-allowed'
+                        : 'text-[#c45c3e] hover:bg-[#c45c3e]/10'
+                    }`}
+                    style={{ fontFamily: '乐米小奶泡体' }}
+                    title="归档日记"
+                  >
+                    <Archive className="w-4 h-4" />
+                    <span>{isArchiving ? '归档中...' : '归档'}</span>
+                  </button>
+
+                  <button
+                    onClick={goToPrevPage}
+                    disabled={currentPage === 0}
+                    className={`flex items-center gap-1 px-3 py-1 rounded-lg text-sm transition-all ${
+                      currentPage === 0
+                        ? 'text-gray-300 cursor-not-allowed'
+                        : 'text-[#5a4030] hover:bg-[#e8dcc8]'
+                    }`}
+                    style={{ fontFamily: '乐米小奶泡体' }}
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                </>
+              )}
 
               {!isPhotoMode && (
-                <button
-                  onClick={goToPrevPage}
-                  disabled={currentPage === 0}
-                  className={`flex items-center gap-1 px-3 py-1 rounded-lg text-sm transition-all ${
-                    currentPage === 0
-                      ? 'text-gray-300 cursor-not-allowed'
-                      : 'text-[#5a4030] hover:bg-[#e8dcc8]'
-                  }`}
-                  style={{ fontFamily: '乐米小奶泡体' }}
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-              )}
-            </div>
-
-            {!isPhotoMode && (
-              <>
+                <>
                   <input
                     type="file"
                     accept="image/*"
@@ -1099,62 +1116,76 @@ export function DiaryWritePage() {
                       <Pencil className="w-4 h-4 text-[#5a4030]" />
                     </button>
                   </div>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
+                </>
+              )}
 
-      {showStickerPicker && (
-        <div className="absolute bottom-16 left-1/2 -translate-x-1/2 p-3 bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-[#e8dcc8] z-50 animate-fade-in">
-          <div className="flex gap-1 flex-wrap justify-center max-w-[200px]">
-            {['🔥', '💕', '✨', '🌸', '⭐', '🌙', '💫', '🎀', '🌈', '🍀', '🦋', '🐱', '🌺', '🍃', '💎', '🎵'].map((emoji) => (
-              <button
-                key={emoji}
-                onClick={() => {
-                  addFloatingElement('sticker', { emoji });
-                  setShowStickerPicker(false);
-                }}
-                className="p-2 hover:bg-[#f0e8e0] rounded-lg transition-all hover:scale-110 text-2xl"
-              >
-                {emoji}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {showArchiveConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-6" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div
-            className="relative w-80 bg-gradient-to-b from-amber-50 to-yellow-50 p-8 rounded-2xl shadow-2xl text-center animate-bounce-in"
-            style={{
-              backgroundColor: '#FFFBF0',
-              border: '2px solid #F0E6D2',
-            }}
-          >
-            {/* 胶带装饰 */}
-            <div
-              className="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-6"
-              style={{
-                backgroundColor: 'rgba(255, 182, 193, 0.6)',
-                border: '1px dashed rgba(255,255,255,0.4)',
-              }}
-            />
-
-            <div className="text-6xl mb-4 animate-pulse">✨</div>
-            <h3 className="text-xl font-bold mb-2" style={{ color: '#8B4513', fontFamily: 'cursive' }}>
-              归档成功！
-            </h3>
-            <p className="text-sm text-gray-500 mb-4">
-              日记已存入时光胶囊
-            </p>
-            <div className="text-xs text-gray-400">
-              即将返回日记列表...
+              {!isPhotoMode && (
+                <button
+                  onClick={goToNextPage}
+                  className="flex items-center gap-1 px-3 py-1 rounded-lg text-[#c45c3e] hover:bg-[#c45c3e]/10 transition-all"
+                  style={{ fontFamily: '乐米小奶泡体' }}
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              )}
             </div>
           </div>
+
+          {showStickerPicker && (
+            <div className="absolute bottom-16 left-1/2 -translate-x-1/2 p-3 bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-[#e8dcc8] z-50 animate-fade-in">
+              <div className="flex gap-1 flex-wrap justify-center max-w-[200px]">
+                {['🔥', '💕', '✨', '🌸', '⭐', '🌙', '💫', '🎀', '🌈', '🍀', '🦋', '🐱', '🌺', '🍃', '💎', '🎵'].map((emoji) => (
+                  <button
+                    key={emoji}
+                    onClick={() => {
+                      addFloatingElement('sticker', { emoji });
+                      setShowStickerPicker(false);
+                    }}
+                    className="p-2 hover:bg-[#f0e8e0] rounded-lg transition-all hover:scale-110 text-2xl"
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 归档确认弹窗 */}
+          {showArchiveConfirm && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-6" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+              <div
+                className="relative w-80 bg-gradient-to-b from-amber-50 to-yellow-50 p-8 rounded-2xl shadow-2xl text-center animate-bounce-in"
+                style={{
+                  backgroundColor: '#FFFBF0',
+                  border: '2px solid #F0E6D2',
+                }}
+              >
+                {/* 胶带装饰 */}
+                <div
+                  className="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-6"
+                  style={{
+                    backgroundColor: 'rgba(255, 182, 193, 0.6)',
+                    border: '1px dashed rgba(255,255,255,0.4)',
+                  }}
+                />
+
+                <div className="text-6xl mb-4 animate-pulse">✨</div>
+                <h3 className="text-xl font-bold mb-2" style={{ color: '#8B4513', fontFamily: 'cursive' }}>
+                  归档成功！
+                </h3>
+                <p className="text-sm text-gray-500 mb-4">
+                  日记已存入时光胶囊
+                </p>
+                <div className="text-xs text-gray-400">
+                  即将返回日记列表...
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      </div>
+           </>
+         )}
 
       {(showStickerPicker || showArchiveConfirm) && (
         <div className="fixed inset-0 z-30" onClick={() => {}} />
