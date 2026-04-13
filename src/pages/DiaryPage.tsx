@@ -57,7 +57,7 @@ export function DiaryPage() {
     const matchDate = selectedDate === '' || archive.date === selectedDate;
     
     return matchSearch && matchCategory && matchDate;
-  }).sort((a, b) => b.date.localeCompare(a.date));
+  }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   // 获取所有有日记的月份
   const availableMonths = Array.from(
