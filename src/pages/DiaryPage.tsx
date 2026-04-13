@@ -30,7 +30,12 @@ export function DiaryPage() {
 
   const handleArchiveClick = (id?: string) => {
     if (id) {
-      navigate(`/diary/write?archiveId=${id}`);
+      const archive = archives.find(a => a.id === id);
+      if (archive) {
+        navigate(`/diary/write?archiveId=${id}&date=${archive.date}`);
+      } else {
+        navigate(`/diary/write?archiveId=${id}`);
+      }
     }
   };
 
