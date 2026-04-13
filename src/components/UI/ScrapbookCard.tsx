@@ -38,9 +38,16 @@ export function ScrapbookCard({
   const [isHovered, setIsHovered] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [weatherImageIndex, setWeatherImageIndex] = useState(() => {
+    if (!id) return 0;
     const saved = localStorage.getItem(`weather-image-${id}`);
     return saved ? parseInt(saved, 10) : 0;
   });
+
+  useEffect(() => {
+    if (id && weatherImageIndex !== undefined) {
+      localStorage.setItem(`weather-image-${id}`, weatherImageIndex.toString());
+    }
+  }, [id, weatherImageIndex]);
 
   const weatherImages = [
     'https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/weather/a.png',
