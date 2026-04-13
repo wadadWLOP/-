@@ -8,6 +8,7 @@ const IMAGE_SRCS = [
 ];
 
 const CUSTOM_IMAGES_KEY = 'six-faces-custom-images';
+const UPLOAD_API_URL = '/api/upload-to-cos';
 
 const loadCustomImages = () => {
   try {
@@ -27,19 +28,55 @@ const loadCustomImages = () => {
 
 loadCustomImages();
 
-const saveCustomImage = (faceIndex, dataUrl) => {
-  try {
-    const saved = localStorage.getItem(CUSTOM_IMAGES_KEY);
-    const customImages = saved ? JSON.parse(saved) : new Array(6).fill(null);
-    customImages[faceIndex] = dataUrl;
-    localStorage.setItem(CUSTOM_IMAGES_KEY, JSON.stringify(customImages));
-    IMAGE_SRCS[faceIndex] = dataUrl;
-    return true;
-  } catch (e) {
-    console.error('Failed to save custom image:', e);
-    alert('图片太大，无法保存。请尝试较小的图片。');
-    return false;
+const saveCustomImage = (faceIndex, dataUrl, callback) => {
+  const uploadBtn = document.querySelector(`.upload-btn[data-face="${faceIndex}"]`);
+  if (uploadBtn) {
+    uploadBtn.innerHTML = '<svg class="animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>';
   }
+  
+  fetch(UPLOAD_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      image: dataUrl,
+      faceIndex: faceIndex
+    })
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Upload failed');
+    }
+    return response.json();
+  })
+  .then(data => {
+    if (data.url) {
+      try {
+        const saved = localStorage.getItem(CUSTOM_IMAGES_KEY);
+        const customImages = saved ? JSON.parse(saved) : new Array(6).fill(null);
+        customImages[faceIndex] = data.url;
+        localStorage.setItem(CUSTOM_IMAGES_KEY, JSON.stringify(customImages));
+        IMAGE_SRCS[faceIndex] = data.url;
+        callback(true, data.url);
+      } catch (e) {
+        console.error('Failed to save to localStorage:', e);
+        callback(false, null);
+      }
+    } else {
+      callback(false, null);
+    }
+  })
+  .catch(error => {
+    console.error('Upload error:', error);
+    alert('上传失败，请重试');
+    callback(false, null);
+  })
+  .finally(() => {
+    if (uploadBtn) {
+      uploadBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>';
+    }
+  });
 };
 
 const IMAGE_ASPECTS = [1, 1, 1, 1, 1, 1];
@@ -439,28 +476,30 @@ document.addEventListener('change', (e) => {
       const reader = new FileReader();
       reader.onload = (event) => {
         const dataUrl = event.target.result;
-        if (saveCustomImage(faceIndex, dataUrl)) {
-          const face = dom.faces[faceIndex];
-          let img = face.querySelector('img');
-          if (!img) {
-            img = new Image();
-            face.appendChild(img);
+        saveCustomImage(faceIndex, dataUrl, (success, url) => {
+          if (success && url) {
+            const face = dom.faces[faceIndex];
+            let img = face.querySelector('img');
+            if (!img) {
+              img = new Image();
+              face.appendChild(img);
+            }
+            img.src = url;
+            img.style.objectFit = 'cover';
+            
+            const uploadBtn = document.querySelector(`.upload-btn[data-face="${faceIndex}"]`);
+            if (uploadBtn) {
+              uploadBtn.style.opacity = '1';
+              uploadBtn.style.background = 'var(--accent)';
+              uploadBtn.style.color = 'var(--bg)';
+              setTimeout(() => {
+                uploadBtn.style.opacity = '';
+                uploadBtn.style.background = '';
+                uploadBtn.style.color = '';
+              }, 500);
+            }
           }
-          img.src = dataUrl;
-          img.style.objectFit = 'cover';
-          
-          const uploadBtn = document.querySelector(`.upload-btn[data-face="${faceIndex}"]`);
-          if (uploadBtn) {
-            uploadBtn.style.opacity = '1';
-            uploadBtn.style.background = 'var(--accent)';
-            uploadBtn.style.color = 'var(--bg)';
-            setTimeout(() => {
-              uploadBtn.style.opacity = '';
-              uploadBtn.style.background = '';
-              uploadBtn.style.color = '';
-            }, 500);
-          }
-        }
+        });
       };
       reader.readAsDataURL(file);
     }

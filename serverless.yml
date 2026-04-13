@@ -1,0 +1,35 @@
+# serverless.yml
+
+org: juiceqiuqiu
+app: six-faces
+stage: prod
+
+component: scf
+
+inputs:
+  name: upload-to-cos
+  namespace: default
+  runtime: Nodejs16.13
+  region: ap-shanghai
+  handler: index.main_handler_handler
+  template: event
+  
+  src: ./functions
+  
+  environment:
+    variables:
+      TENCENT_SECRET_ID: ${env:TENCENT_SECRET_ID}
+      TENCENT_SECRET_KEY: ${env:TENCENT_SECRET_KEY}
+      TENCENT_BUCKET: ${env:TENCENT_BUCKET}
+      TENCENT_REGION: ${env:TENCENT_REGION}
+  
+  events:
+    - apigw:
+        name: sixFacesApi
+        protocol: https
+        environment: release
+        endpoints:
+          - path: /upload-to-cos
+            method: POST
+            cors: true
+            authRequired: false
