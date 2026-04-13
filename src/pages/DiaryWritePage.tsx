@@ -1025,21 +1025,21 @@ export function DiaryWritePage() {
               )}
 
               <button
-                    onClick={handleArchive}
-                    disabled={isArchiving || totalChars === 0}
-                    className={`flex items-center gap-1 px-4 py-2 rounded-lg text-sm transition-all ${
-                      isArchiving || totalChars === 0
-                        ? 'text-gray-300 cursor-not-allowed'
-                        : 'text-[#c45c3e] hover:bg-[#c45c3e]/10'
-                    }`}
-                    style={{ fontFamily: '乐米小奶泡体' }}
-                    title="归档日记"
-                  >
-                    <Archive className="w-4 h-4" />
-                    <span>{isArchiving ? '归档中...' : '归档'}</span>
-                  </button>
+                onClick={handleArchive}
+                disabled={isArchiving || totalChars === 0}
+                className={`flex items-center gap-1 px-4 py-2 rounded-lg text-sm transition-all ${
+                  isArchiving || totalChars === 0
+                    ? 'text-gray-300 cursor-not-allowed'
+                    : 'text-[#c45c3e] hover:bg-[#c45c3e]/10'
+                }`}
+                style={{ fontFamily: '乐米小奶泡体' }}
+                title="归档日记"
+              >
+                <Archive className="w-4 h-4" />
+                <span>{isArchiving ? '归档中...' : '归档'}</span>
+              </button>
 
-                  {!isPhotoMode && (
+              {!isPhotoMode && (
                     <button
                       onClick={goToPrevPage}
                       disabled={currentPage === 0}
