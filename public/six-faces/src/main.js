@@ -7,6 +7,41 @@ const IMAGE_SRCS = [
   "https://assets.codepen.io/573855/demo-raw-06.webp"
 ];
 
+const CUSTOM_IMAGES_KEY = 'six-faces-custom-images';
+
+const loadCustomImages = () => {
+  try {
+    const saved = localStorage.getItem(CUSTOM_IMAGES_KEY);
+    if (saved) {
+      const customImages = JSON.parse(saved);
+      for (let i = 0; i < Math.min(customImages.length, IMAGE_SRCS.length); i++) {
+        if (customImages[i]) {
+          IMAGE_SRCS[i] = customImages[i];
+        }
+      }
+    }
+  } catch (e) {
+    console.error('Failed to load custom images:', e);
+  }
+};
+
+loadCustomImages();
+
+const saveCustomImage = (faceIndex, dataUrl) => {
+  try {
+    const saved = localStorage.getItem(CUSTOM_IMAGES_KEY);
+    const customImages = saved ? JSON.parse(saved) : new Array(6).fill(null);
+    customImages[faceIndex] = dataUrl;
+    localStorage.setItem(CUSTOM_IMAGES_KEY, JSON.stringify(customImages));
+    IMAGE_SRCS[faceIndex] = dataUrl;
+    return true;
+  } catch (e) {
+    console.error('Failed to save custom image:', e);
+    alert('图片太大，无法保存。请尝试较小的图片。');
+    return false;
+  }
+};
+
 const IMAGE_ASPECTS = [1, 1, 1, 1, 1, 1];
 
 const FACE_NAMES = [
@@ -382,6 +417,67 @@ const smoothScrollToY = (targetY, duration = 900) => {
 window.addEventListener("touchstart", stopAnchorAnim, { passive: true });
 window.addEventListener("mousedown", stopAnchorAnim, { passive: true });
 window.addEventListener("keydown", stopAnchorAnim);
+
+document.addEventListener('click', (e) => {
+  const uploadBtn = e.target.closest('.upload-btn');
+  if (uploadBtn) {
+    const faceIndex = parseInt(uploadBtn.dataset.face, 10);
+    const fileInput = document.querySelector(`.upload-input[data-face="${faceIndex}"]`);
+    if (fileInput) {
+      fileInput.click();
+    }
+  }
+});
+
+document.addEventListener('change', (e) => {
+  if (e.target.classList.contains('upload-input')) {
+    const fileInput = e.target;
+    const faceIndex = parseInt(fileInput.dataset.face, 10);
+    const file = fileInput.files[0];
+    
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const dataUrl = event.target.result;
+        if (saveCustomImage(faceIndex, dataUrl)) {
+          const face = dom.faces[faceIndex];
+          let img = face.querySelector('img');
+          if (!img) {
+            img = new Image();
+            face.appendChild(img);
+          }
+          img.src = dataUrl;
+          img.style.objectFit = 'cover';
+          
+          const uploadBtn = document.querySelector(`.upload-btn[data-face="${faceIndex}"]`);
+          if (uploadBtn) {
+            uploadBtn.style.opacity = '1';
+            uploadBtn.style.background = 'var(--accent)';
+            uploadBtn.style.color = 'var(--bg)';
+            setTimeout(() => {
+              uploadBtn.style.opacity = '';
+              uploadBtn.style.background = '';
+              uploadBtn.style.color = '';
+            }, 500);
+          }
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+    
+    fileInput.value = '';
+  }
+});
+
+document.addEventListener('click', (e) => {
+  const resetBtn = e.target.closest('.reset-btn');
+  if (resetBtn) {
+    if (confirm('确定要重置所有自定义图片吗？这将恢复默认图片。')) {
+      localStorage.removeItem(CUSTOM_IMAGES_KEY);
+      location.reload();
+    }
+  }
+});
 
 document.addEventListener("click", (e) => {
   const a = e.target.closest('a[href^="#s"]');
