@@ -454,8 +454,12 @@ export function DiaryWritePage() {
       const stickerElement = floatingElements.find(el => el.type === 'sticker');
       const stickerEmoji = stickerElement?.emoji;
       
-      // 生成摘要（取左页前 50 字）
-      const excerpt = leftContent.slice(0, 50) + (leftContent.length > 50 ? '...' : '');
+      // 生成摘要（取第一页左页前 50 字）
+      const firstLeftContent = pages[0]?.leftContent || '';
+      const excerpt = firstLeftContent.slice(0, 50) + (firstLeftContent.length > 50 ? '...' : '');
+      
+      // 合并所有页面的内容
+      const allContent = pages.map(p => `【左页】\n${p.leftContent}\n\n【右页】\n${p.rightContent}`).join('\n\n==========\n\n');
       
       if (archiveId) {
         // 从归档卡片进入，更新原有记录
@@ -463,7 +467,7 @@ export function DiaryWritePage() {
           .from('diary_archives')
           .update({
             excerpt: excerpt,
-            full_content: leftContent,
+            full_content: allContent,
             category: diaryCategory,
             weather: weather,
             word_count: totalChars,
@@ -479,7 +483,7 @@ export function DiaryWritePage() {
           date: dateParam,
           title: undefined,
           excerpt: excerpt,
-          full_content: leftContent,
+          full_content: allContent,
           category: diaryCategory,
           weather: weather,
           word_count: totalChars,
