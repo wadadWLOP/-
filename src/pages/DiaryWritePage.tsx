@@ -910,7 +910,6 @@ export function DiaryWritePage() {
                   }}
                 />
               </div>
-            </div>
                 <div className={`w-1/2 p-6 pt-12 flex flex-col h-[450px] border-l ${rightContent ? 'border-[#e8dcc8]' : 'border-transparent'}`}>
                   <div className="flex-1 overflow-hidden relative">
                     <textarea
