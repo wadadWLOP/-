@@ -1114,8 +1114,10 @@ export function DiaryWritePage() {
               )}
             </div>
           </div>
+        </div>
+      </div>
 
-          {showStickerPicker && (
+      {showStickerPicker && (
             <div className="absolute bottom-16 left-1/2 -translate-x-1/2 p-3 bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-[#e8dcc8] z-50 animate-fade-in">
               <div className="flex gap-1 flex-wrap justify-center max-w-[200px]">
                 {['🔥', '💕', '✨', '🌸', '⭐', '🌙', '💫', '🎀', '🌈', '🍀', '🦋', '🐱', '🌺', '🍃', '💎', '🎵'].map((emoji) => (
@@ -1166,10 +1168,6 @@ export function DiaryWritePage() {
               </div>
             </div>
           )}
-        </div>
-      </div>
-           </>
-         )}
 
       {(showStickerPicker || showArchiveConfirm) && (
         <div className="fixed inset-0 z-30" onClick={() => {}} />
