@@ -459,7 +459,7 @@ export function DiaryWritePage() {
       const excerpt = firstLeftContent.slice(0, 50) + (firstLeftContent.length > 50 ? '...' : '');
       
       // 合并所有页面的内容
-      const allContent = pages.map(p => `${p.leftContent}\n\n${p.rightContent}`).join('\n\n==========\n\n');
+      const allContent = pages.map(p => p.leftContent + '\n' + p.rightContent).join('\n');
       
       if (archiveId) {
         // 从归档卡片进入，更新原有记录
