@@ -1040,24 +1040,23 @@ export function DiaryWritePage() {
               </button>
 
               {!isPhotoMode && (
-                    <button
-                      onClick={goToPrevPage}
-                      disabled={currentPage === 0}
-                      className={`flex items-center gap-1 px-3 py-1 rounded-lg text-sm transition-all ${
-                        currentPage === 0
-                          ? 'text-gray-300 cursor-not-allowed'
-                          : 'text-[#5a4030] hover:bg-[#e8dcc8]'
-                      }`}
-                      style={{ fontFamily: '乐米小奶泡体' }}
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                    </button>
-                  )}
-                </>
+                <button
+                  onClick={goToPrevPage}
+                  disabled={currentPage === 0}
+                  className={`flex items-center gap-1 px-3 py-1 rounded-lg text-sm transition-all ${
+                    currentPage === 0
+                      ? 'text-gray-300 cursor-not-allowed'
+                      : 'text-[#5a4030] hover:bg-[#e8dcc8]'
+                  }`}
+                  style={{ fontFamily: '乐米小奶泡体' }}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
               )}
+            </div>
 
-              {!isPhotoMode && (
-                <>
+            {!isPhotoMode && (
+              <>
                   <input
                     type="file"
                     accept="image/*"
