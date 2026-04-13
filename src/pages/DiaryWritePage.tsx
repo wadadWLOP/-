@@ -13,6 +13,15 @@ const weatherIcons: Record<string, React.ReactNode> = {
 
 const weekDays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
 
+const MAX_LEFT_LINES = 7;
+const MAX_RIGHT_LINES = 11;
+const OTHER_PAGE_LINES = 11;
+
+const getPageLeftLimit = (pageIndex: number) => pageIndex === 0 ? MAX_LEFT_LINES : OTHER_PAGE_LINES;
+const getPageRightLimit = (pageIndex: number) => pageIndex === 0 ? MAX_RIGHT_LINES : OTHER_PAGE_LINES;
+
+const TEMP_MAX_LEFT_LINES = MAX_LEFT_LINES + 1;
+
 interface FloatingElement {
   id: string;
   type: 'photo' | 'sticker' | 'doodle';
@@ -61,6 +70,7 @@ export function DiaryWritePage() {
   const [isArchiving, setIsArchiving] = useState(false);
   const [loading, setLoading] = useState(false);
   const [diaryCategory, setDiaryCategory] = useState<'qiuqiu' | 'guozhi' | ''>('');
+  const [isComposing, setIsComposing] = useState(false);
   const leftTextareaRef = useRef<HTMLTextAreaElement>(null);
   const rightTextareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -98,8 +108,7 @@ export function DiaryWritePage() {
             const content = data.full_content || data.excerpt || '';
             setWeather(data.weather || 'sunny');
             setDiaryCategory(data.category || '');
-            
-            // 始终以普通模式加载文字内容
+                      // 始终以普通模式加载文字内容
             setIsPhotoMode(false);
             setPages([{ leftContent: content, rightContent: '' }]);
             
@@ -167,31 +176,164 @@ export function DiaryWritePage() {
     };
   }, [draggingId, dragOffset]);
 
-  const isOverflowing = (textarea: HTMLTextAreaElement): boolean => {
-    return textarea.scrollHeight > textarea.clientHeight;
-  };
-
-  const getOverflowContent = (textarea: HTMLTextAreaElement): { kept: string; overflow: string } => {
-    const lineHeight = parseFloat(getComputedStyle(textarea).lineHeight) || 28;
-    const maxHeight = textarea.clientHeight;
-    const content = textarea.value;
-    const lines = content.split('\n');
+  const calculateActualLines = (textarea: HTMLTextAreaElement): number => {
+    if (!textarea) return 0;
     
-    let keptLines: string[] = [];
-    let currentHeight = 0;
+    const content = textarea.value;
+    if (!content) return 0;
+    
+    const computedStyle = getComputedStyle(textarea);
+    let fontSize = parseFloat(computedStyle.fontSize);
+    if (!fontSize || isNaN(fontSize)) {
+      fontSize = 14;
+    }
+    const lineHeight = fontSize * 2.2;
+    const width = textarea.clientWidth || 300;
+    
+    const measureDiv = document.createElement('div');
+    measureDiv.style.width = `${width}px`;
+    measureDiv.style.fontFamily = computedStyle.fontFamily;
+    measureDiv.style.fontSize = `${fontSize}px`;
+    measureDiv.style.lineHeight = `${lineHeight}px`;
+    measureDiv.style.wordBreak = 'break-word';
+    measureDiv.style.whiteSpace = 'pre-wrap';
+    measureDiv.style.visibility = 'hidden';
+    measureDiv.style.position = 'absolute';
+    // 不使用 textarea 的 padding，因为我们要测量纯文本高度
+    measureDiv.style.padding = '0';
+    measureDiv.style.border = '0';
+    measureDiv.style.margin = '0';
+    measureDiv.style.boxSizing = 'content-box';
+    document.body.appendChild(measureDiv);
+    
+    const lines = content.split('\n');
+    let totalLines = 0;
     
     for (const line of lines) {
-      const lineHeightValue = line ? lineHeight : lineHeight * 0.8;
-      if (currentHeight + lineHeightValue > maxHeight) {
-        break;
+      if (line === '') {
+        totalLines += 1;
+      } else {
+        measureDiv.textContent = line;
+        const actualHeight = measureDiv.offsetHeight;
+        // 添加小容差，避免亚像素精度问题导致错误计算
+        const lineCount = Math.round(actualHeight / lineHeight);
+        totalLines += lineCount;
       }
-      keptLines.push(line);
-      currentHeight += lineHeightValue;
     }
     
+    document.body.removeChild(measureDiv);
+    
+    return totalLines;
+  };
+
+  const isOverflowing = (textarea: HTMLTextAreaElement, maxLines: number): boolean => {
+    const actualLines = calculateActualLines(textarea);
+    return actualLines > maxLines;
+  };
+
+  const getOverflowContent = (textarea: HTMLTextAreaElement, maxLines: number): { kept: string; overflow: string } => {
+    const content = textarea.value;
+    const computedStyle = getComputedStyle(textarea);
+    let fontSize = parseFloat(computedStyle.fontSize);
+    if (!fontSize || isNaN(fontSize)) {
+      fontSize = 14;
+    }
+    const lineHeight = fontSize * 2.2;
+    const width = textarea.clientWidth || 300;
+    
+    const measureDiv = document.createElement('div');
+    measureDiv.style.width = `${width}px`;
+    measureDiv.style.fontFamily = computedStyle.fontFamily;
+    measureDiv.style.fontSize = `${fontSize}px`;
+    measureDiv.style.lineHeight = `${lineHeight}px`;
+    measureDiv.style.wordBreak = 'break-word';
+    measureDiv.style.whiteSpace = 'pre-wrap';
+    measureDiv.style.visibility = 'hidden';
+    measureDiv.style.position = 'absolute';
+    // 不使用 textarea 的 padding，因为我们要测量纯文本高度
+    measureDiv.style.padding = '0';
+    measureDiv.style.border = '0';
+    measureDiv.style.margin = '0';
+    measureDiv.style.boxSizing = 'content-box';
+    document.body.appendChild(measureDiv);
+    
+    const lines = content.split('\n');
+    let keptLines: string[] = [];
+    let currentLineCount = 0;
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      
+      let lineCount: number;
+      
+      if (line === '') {
+        lineCount = 1;
+      } else {
+        measureDiv.textContent = line;
+        const actualHeight = measureDiv.offsetHeight;
+        // 添加小容差，避免亚像素精度问题导致错误计算
+        lineCount = Math.round(actualHeight / lineHeight);
+      }
+      
+      if (currentLineCount + lineCount > maxLines) {
+        const remainingLines = maxLines - currentLineCount;
+        
+        if (remainingLines > 0 && line.length > 0) {
+          let left = 0;
+          let right = line.length;
+          let bestLength = 0;
+          
+          while (left <= right) {
+            const mid = Math.floor((left + right) / 2);
+            measureDiv.textContent = line.slice(0, mid) || ' ';
+            const height = measureDiv.offsetHeight;
+            const linesCount = Math.round(height / lineHeight);
+            
+            if (linesCount <= remainingLines) {
+              bestLength = mid;
+              left = mid + 1;
+            } else {
+              right = mid - 1;
+            }
+          }
+          
+          const keptText = line.slice(0, bestLength);
+          const overflowText = line.slice(bestLength);
+          
+          if (keptText || remainingLines > 0) {
+            if (keptText) {
+              keptLines.push(keptText);
+            }
+            const overflowContent = [overflowText, ...lines.slice(i + 1)].join('\n');
+            document.body.removeChild(measureDiv);
+            return {
+              kept: keptLines.join('\n'),
+              overflow: overflowContent
+            };
+          } else {
+            document.body.removeChild(measureDiv);
+            return {
+              kept: keptLines.join('\n'),
+              overflow: lines.slice(i).join('\n')
+            };
+          }
+        } else {
+          document.body.removeChild(measureDiv);
+          return {
+            kept: keptLines.join('\n'),
+            overflow: lines.slice(i).join('\n')
+          };
+        }
+      }
+      
+      keptLines.push(line);
+      currentLineCount += lineCount;
+    }
+    
+    document.body.removeChild(measureDiv);
     return {
       kept: keptLines.join('\n'),
-      overflow: lines.slice(keptLines.length).join('\n')
+      overflow: ''
     };
   };
 
@@ -209,35 +351,25 @@ export function DiaryWritePage() {
   const handleLeftContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const textarea = e.target;
     const newContent = e.target.value;
-    const hasOverflow = isOverflowing(textarea);
+    const actualLines = calculateActualLines(textarea);
+    const pageLeftLimit = getPageLeftLimit(currentPage);
+    const tempLimit = pageLeftLimit + 1;
     
-    if (hasOverflow && rightContent === '') {
-      const { kept, overflow } = getOverflowContent(textarea);
+    if (isComposing) {
+      updateCurrentPage(newContent, rightContent);
+      return;
+    }
+    
+    const shouldOverflow = actualLines > tempLimit;
+    
+    if (shouldOverflow && rightContent === '') {
+      const { kept, overflow } = getOverflowContent(textarea, pageLeftLimit);
       updateCurrentPage(kept, overflow);
       setTimeout(() => rightTextareaRef.current?.focus(), 50);
-    } else if (hasOverflow && rightContent !== '') {
-      const { kept, overflow } = getOverflowContent(textarea);
+    } else if (shouldOverflow && rightContent !== '') {
+      const { kept, overflow } = getOverflowContent(textarea, pageLeftLimit);
       const newRight = overflow + (overflow ? '\n' : '') + rightContent;
       updateCurrentPage(kept, newRight);
-    } else if (!hasOverflow && rightContent !== '' && newContent.split('\n').length < MAX_LINES_PER_PAGE) {
-      const combined = newContent + '\n' + rightContent;
-      const tempTextarea = document.createElement('textarea');
-      tempTextarea.value = combined;
-      tempTextarea.style.lineHeight = getComputedStyle(e.target).lineHeight;
-      tempTextarea.style.width = getComputedStyle(e.target).width;
-      tempTextarea.style.height = getComputedStyle(e.target).height;
-      tempTextarea.style.visibility = 'hidden';
-      tempTextarea.style.position = 'absolute';
-      document.body.appendChild(tempTextarea);
-      
-      const { kept, overflow } = getOverflowContent(tempTextarea);
-      document.body.removeChild(tempTextarea);
-      
-      if (!overflow) {
-        updateCurrentPage(combined, '');
-      } else {
-        updateCurrentPage(kept, overflow);
-      }
     } else {
       updateCurrentPage(newContent, rightContent);
     }
@@ -246,10 +378,13 @@ export function DiaryWritePage() {
   const handleRightContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const textarea = e.target;
     const newContent = e.target.value;
-    const hasOverflow = isOverflowing(textarea);
+    const actualLines = calculateActualLines(textarea);
+    const pageRightLimit = getPageRightLimit(currentPage);
+    const tempLimit = pageRightLimit + 1;
+    const isOverflowTemp = actualLines > tempLimit;
     
-    if (hasOverflow) {
-      const { kept, overflow } = getOverflowContent(textarea);
+    if (isOverflowTemp) {
+      const { kept, overflow } = getOverflowContent(textarea, pageRightLimit);
       
       if (currentPage < pages.length - 1) {
         const nextPageData = pages[currentPage + 1];
@@ -288,6 +423,8 @@ export function DiaryWritePage() {
       updateCurrentPage(leftContent, newContent);
     }
   };
+
+
 
   const handleRightKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Backspace' && rightContent === '' && leftContent !== '') {
@@ -600,7 +737,7 @@ export function DiaryWritePage() {
 
             {!isPhotoMode ? (
               <>
-                <div className="w-1/2 p-6 pt-12 flex flex-col h-[500px] relative">
+                <div className="w-1/2 p-6 pt-12 flex flex-col h-[700px] relative">
                   {currentPage === 0 && (
                   <div className="mb-2 flex-shrink-0">
                     {/* 日记分类选择 */}
@@ -686,6 +823,70 @@ export function DiaryWritePage() {
                   ref={leftTextareaRef}
                   value={leftContent}
                   onChange={handleLeftContentChange}
+                  onCompositionStart={() => setIsComposing(true)}
+                  onCompositionEnd={() => {
+                    setIsComposing(false);
+                    setTimeout(() => {
+                      const textarea = leftTextareaRef.current;
+                      if (textarea) {
+                        const pageLeftLimit = getPageLeftLimit(currentPage);
+                        const actualLines = calculateActualLines(textarea);
+                        
+                        if (actualLines >= pageLeftLimit) {
+                          const content = textarea.value;
+                          const computedStyle = getComputedStyle(textarea);
+                          const lineHeight = parseFloat(computedStyle.lineHeight) || 28;
+                          const width = textarea.clientWidth || 300;
+                          
+                          const measureDiv = document.createElement('div');
+                          measureDiv.style.width = `${width}px`;
+                          measureDiv.style.fontFamily = computedStyle.fontFamily;
+                          measureDiv.style.fontSize = computedStyle.fontSize;
+                          measureDiv.style.lineHeight = computedStyle.lineHeight;
+                          measureDiv.style.letterSpacing = computedStyle.letterSpacing;
+                          measureDiv.style.wordBreak = 'break-word';
+                          measureDiv.style.whiteSpace = 'pre-wrap';
+                          measureDiv.style.visibility = 'hidden';
+                          measureDiv.style.position = 'absolute';
+                          measureDiv.style.boxSizing = 'border-box';
+                          document.body.appendChild(measureDiv);
+                          
+                          const lines = content.split('\n');
+                          let currentLineCount = 0;
+                          let contentAfterLimit = '';
+                          
+                          for (let i = 0; i < lines.length; i++) {
+                            const line = lines[i];
+                            
+                            if (line === '') {
+                              currentLineCount += 1;
+                            } else {
+                              measureDiv.textContent = line;
+                              const actualHeight = measureDiv.offsetHeight;
+                              const lineCount = Math.round(actualHeight / lineHeight);
+                              currentLineCount += lineCount;
+                            }
+                            
+                            if (currentLineCount >= pageLeftLimit && i < lines.length) {
+                              contentAfterLimit += line + '\n';
+                            }
+                          }
+                          
+                          document.body.removeChild(measureDiv);
+                          
+                          const hasChineseInLimit = /[\u4e00-\u9fa5]/.test(contentAfterLimit);
+                          
+                          if (hasChineseInLimit) {
+                            const { kept, overflow } = getOverflowContent(textarea, pageLeftLimit);
+                            if (overflow) {
+                              updateCurrentPage(kept, overflow);
+                              setTimeout(() => rightTextareaRef.current?.focus(), 50);
+                            }
+                          }
+                        }
+                      }
+                    }, 0);
+                  }}
                   placeholder="在这里写下今天的故事..."
                   className="w-full h-full resize-none bg-transparent border-none outline-none text-sm text-[#3a3020] placeholder:text-[#c0b0a0] placeholder:font-['乐米小奶泡体'] scrollbar-none"
                   style={{
@@ -696,7 +897,7 @@ export function DiaryWritePage() {
                 />
               </div>
             </div>
-                <div className={`w-1/2 p-6 pt-12 flex flex-col h-[500px] border-l ${rightContent ? 'border-[#e8dcc8]' : 'border-transparent'}`}>
+                <div className={`w-1/2 p-6 pt-12 flex flex-col h-[700px] border-l ${rightContent ? 'border-[#e8dcc8]' : 'border-transparent'}`}>
                   <div className="flex-1 overflow-hidden relative">
                     <textarea
                       ref={rightTextareaRef}
@@ -720,7 +921,7 @@ export function DiaryWritePage() {
             ) : (
               /* 照片模式：左右两页都显示照片上传区域 */
               <>
-                <div className="w-1/2 p-4 pt-12 flex flex-col h-[500px] relative border-r border-[#e8dcc8]">
+                <div className="w-1/2 p-4 pt-12 flex flex-col h-[700px] relative border-r border-[#e8dcc8]">
                   <div className="absolute top-4 left-4 text-xs text-[#a09080]" style={{ fontFamily: '乐米小奶泡体' }}>
                     第 {currentPhotoPage + 1} 页 · 左
                   </div>
@@ -737,7 +938,7 @@ export function DiaryWritePage() {
                     }}
                   />
                 </div>
-                <div className="w-1/2 p-4 pt-12 flex flex-col h-[500px] relative">
+                <div className="w-1/2 p-4 pt-12 flex flex-col h-[700px] relative">
                   <div className="absolute top-4 right-4 text-xs text-[#a09080]" style={{ fontFamily: '乐米小奶泡体' }}>
                     第 {currentPhotoPage + 1} 页 · 右
                   </div>

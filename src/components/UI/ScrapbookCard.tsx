@@ -207,7 +207,7 @@ export function ScrapbookCard({
 
       {photoUrl && (
         <div className="mb-3 rounded-lg overflow-hidden shadow-md">
-          <img src={photoUrl} alt="" className="w-full h-32 object-cover" />
+          <img src={photoUrl} alt="" className="w-full h-24 object-cover" />
         </div>
       )}
 
