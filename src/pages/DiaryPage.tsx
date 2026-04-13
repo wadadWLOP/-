@@ -70,6 +70,11 @@ export function DiaryPage() {
         <div>
           <h1 className="font-diary text-3xl text-[#5a4030]">📖 秋秋和果汁的日记</h1>
           <p className="font-diary text-sm text-[#8a7060] mt-1">在这个三月</p>
+          {archives.length > 0 && (
+            <p className="font-diary text-xs text-[#a09080] mt-1">
+              共 {archives.length} 篇日记 · {archives.reduce((sum, a) => sum + (a.word_count || 0), 0).toLocaleString()} 字
+            </p>
+          )}
         </div>
         <div className="flex gap-2">
           <button
