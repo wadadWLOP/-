@@ -8,3 +8,4 @@ export { WishPage } from './WishPage';
 export { AlbumPage } from './AlbumPage';
 export { CheckinPage } from './CheckinPage';
 export { FoodDiaryPage } from './FoodDiaryPage';
+export { default as SixFacesPage } from './SixFacesPage';

@@ -8,6 +8,9 @@ const IMAGE_SRCS = [
 ];
 
 const CUSTOM_IMAGES_KEY = 'six-faces-custom-images';
+const CUSTOM_IMAGES = [null, null, null, null, null, null];
+const CUSTOM_TEXTS_KEY = 'six-faces-custom-texts';
+const CUSTOM_TEXTS = [null, null, null, null, null, null];
 
 const cos = new COS({
   SecretId: window.VITE_TENCENT_SECRET_ID || 'YOUR_SECRET_ID',
@@ -21,10 +24,8 @@ const loadCustomImages = () => {
     const saved = localStorage.getItem(CUSTOM_IMAGES_KEY);
     if (saved) {
       const customImages = JSON.parse(saved);
-      for (let i = 0; i < Math.min(customImages.length, IMAGE_SRCS.length); i++) {
-        if (customImages[i]) {
-          IMAGE_SRCS[i] = customImages[i];
-        }
+      for (let i = 0; i < Math.min(customImages.length, CUSTOM_IMAGES.length); i++) {
+        CUSTOM_IMAGES[i] = customImages[i];
       }
     }
   } catch (e) {
@@ -33,6 +34,58 @@ const loadCustomImages = () => {
 };
 
 loadCustomImages();
+
+const loadCustomTexts = () => {
+  try {
+    const saved = localStorage.getItem(CUSTOM_TEXTS_KEY);
+    if (saved) {
+      const customTexts = JSON.parse(saved);
+      for (let i = 0; i < Math.min(customTexts.length, CUSTOM_TEXTS.length); i++) {
+        CUSTOM_TEXTS[i] = customTexts[i];
+      }
+    }
+  } catch (e) {
+    console.error('Failed to load custom texts:', e);
+  }
+};
+
+loadCustomTexts();
+
+const restoreTexts = () => {
+  for (let i = 0; i < CUSTOM_TEXTS.length; i++) {
+    if (CUSTOM_TEXTS[i]) {
+      const section = document.getElementById(`s${i}`);
+      if (section) {
+        const textCard = section.querySelector('.text-card');
+        if (textCard) {
+          const tag = textCard.querySelector('.tag');
+          const h2 = textCard.querySelector('h2');
+          const p = textCard.querySelector('.body-text');
+          if (CUSTOM_TEXTS[i].tag && tag) tag.textContent = CUSTOM_TEXTS[i].tag;
+          if (CUSTOM_TEXTS[i].title && h2) h2.innerHTML = CUSTOM_TEXTS[i].title.replace(/\n/g, '<br>');
+          if (CUSTOM_TEXTS[i].body && p) p.textContent = CUSTOM_TEXTS[i].body;
+        }
+      }
+    }
+  }
+};
+
+const restoreOverlays = () => {
+  for (let i = 0; i < CUSTOM_IMAGES.length; i++) {
+    if (CUSTOM_IMAGES[i]) {
+      const face = dom.faces[i];
+      if (face) {
+        let overlay = face.querySelector('.custom-overlay');
+        if (!overlay) {
+          overlay = document.createElement('div');
+          overlay.className = 'custom-overlay';
+          face.appendChild(overlay);
+        }
+        overlay.style.backgroundImage = `url(${CUSTOM_IMAGES[i]})`;
+      }
+    }
+  }
+};
 
 const saveCustomImage = (faceIndex, dataUrl, callback) => {
   const uploadBtn = document.querySelector(`.upload-btn[data-face="${faceIndex}"]`);
@@ -71,7 +124,7 @@ const saveCustomImage = (faceIndex, dataUrl, callback) => {
         const customImages = saved ? JSON.parse(saved) : new Array(6).fill(null);
         customImages[faceIndex] = url;
         localStorage.setItem(CUSTOM_IMAGES_KEY, JSON.stringify(customImages));
-        IMAGE_SRCS[faceIndex] = url;
+        CUSTOM_IMAGES[faceIndex] = url;
         callback(true, url);
       } catch (e) {
         console.error('Failed to save to localStorage:', e);
@@ -89,6 +142,193 @@ const base64ToBlob = (base64, mimeType) => {
   }
   const byteArray = new Uint8Array(byteNumbers);
   return new Blob([byteArray], { type: mimeType });
+};
+
+const showTextEditor = (faceIndex) => {
+  const section = document.getElementById(`s${faceIndex}`);
+  if (!section) return;
+
+  const textCard = section.querySelector('.text-card');
+  if (!textCard) return;
+
+  const tag = textCard.querySelector('.tag');
+  const h2 = textCard.querySelector('h2');
+  const p = textCard.querySelector('.body-text');
+
+  const currentTag = tag ? tag.textContent : '';
+  const currentTitle = h2 ? h2.textContent.replace(/<br>/g, '\n') : '';
+  const currentBody = p ? p.textContent : '';
+
+  const overlay = document.createElement('div');
+  overlay.className = 'text-editor-overlay';
+  overlay.style.cssText = `
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 9998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  `;
+
+  const editor = document.createElement('div');
+  editor.className = 'text-editor';
+  editor.style.cssText = `
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 24px;
+    width: 90%;
+    max-width: 500px;
+    color: #fff;
+    font-family: var(--font-mono);
+  `;
+
+  editor.innerHTML = `
+    <h3 style="margin: 0 0 20px 0; font-size: 16px; color: #888;">编辑文字 - 面 ${faceIndex + 1}</h3>
+    <div style="margin-bottom: 16px;">
+      <label style="display: block; font-size: 12px; color: #888; margin-bottom: 6px;">标签</label>
+      <input type="text" id="edit-tag" value="${currentTag}" style="
+        width: 100%;
+        padding: 10px 12px;
+        background: #0a0a0a;
+        border: 1px solid #333;
+        border-radius: 6px;
+        color: #fff;
+        font-size: 14px;
+        box-sizing: border-box;
+      " />
+    </div>
+    <div style="margin-bottom: 16px;">
+      <label style="display: block; font-size: 12px; color: #888; margin-bottom: 6px;">标题</label>
+      <textarea id="edit-title" rows="3" style="
+        width: 100%;
+        padding: 10px 12px;
+        background: #0a0a0a;
+        border: 1px solid #333;
+        border-radius: 6px;
+        color: #fff;
+        font-size: 14px;
+        font-family: var(--font-mono);
+        box-sizing: border-box;
+        resize: vertical;
+      ">${currentTitle}</textarea>
+    </div>
+    <div style="margin-bottom: 20px;">
+      <label style="display: block; font-size: 12px; color: #888; margin-bottom: 6px;">正文</label>
+      <textarea id="edit-body" rows="5" style="
+        width: 100%;
+        padding: 10px 12px;
+        background: #0a0a0a;
+        border: 1px solid #333;
+        border-radius: 6px;
+        color: #fff;
+        font-size: 14px;
+        font-family: var(--font-mono);
+        box-sizing: border-box;
+        resize: vertical;
+      ">${currentBody}</textarea>
+    </div>
+    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+      <button id="edit-cancel" style="
+        padding: 10px 20px;
+        background: transparent;
+        border: 1px solid #555;
+        border-radius: 6px;
+        color: #888;
+        cursor: pointer;
+        font-size: 14px;
+      ">取消</button>
+      <button id="edit-save" style="
+        padding: 10px 20px;
+        background: #4a9;
+        border: none;
+        border-radius: 6px;
+        color: #fff;
+        cursor: pointer;
+        font-size: 14px;
+      ">保存</button>
+    </div>
+  `;
+
+  overlay.appendChild(editor);
+  document.body.appendChild(overlay);
+
+  const closeEditor = () => {
+    document.body.removeChild(overlay);
+  };
+
+  editor.querySelector('#edit-cancel').addEventListener('click', closeEditor);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeEditor();
+  });
+
+  editor.querySelector('#edit-save').addEventListener('click', () => {
+    const newTag = editor.querySelector('#edit-tag').value;
+    const newTitle = editor.querySelector('#edit-title').value;
+    const newBody = editor.querySelector('#edit-body').value;
+
+    CUSTOM_TEXTS[faceIndex] = {
+      tag: newTag,
+      title: newTitle,
+      body: newBody
+    };
+
+    localStorage.setItem(CUSTOM_TEXTS_KEY, JSON.stringify(CUSTOM_TEXTS));
+
+    if (tag) tag.textContent = newTag;
+    if (h2) h2.innerHTML = newTitle.replace(/\n/g, '<br>');
+    if (p) p.textContent = newBody;
+
+    closeEditor();
+  });
+};
+
+const showUploadFeedback = (faceIndex, success) => {
+  const uploadBtn = document.querySelector(`.upload-btn[data-face="${faceIndex}"]`);
+  const feedback = document.createElement('div');
+  feedback.className = 'upload-feedback';
+  feedback.textContent = success ? '✓ 上传成功' : '✗ 上传失败';
+  feedback.style.cssText = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 12px 24px;
+    background: ${success ? 'rgba(58, 110, 0, 0.9)' : 'rgba(180, 60, 60, 0.9)'};
+    color: white;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: var(--font-mono);
+    z-index: 9999;
+    animation: fadeInOut 2s ease-in-out forwards;
+  `;
+  
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+      15% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      85% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+    }
+  `;
+  document.head.appendChild(style);
+  document.body.appendChild(feedback);
+  
+  if (uploadBtn) {
+    uploadBtn.style.background = success ? 'var(--accent)' : '#b43c3c';
+    uploadBtn.style.color = 'var(--bg)';
+    setTimeout(() => {
+      uploadBtn.style.background = '';
+      uploadBtn.style.color = '';
+    }, 2000);
+  }
+  
+  setTimeout(() => {
+    feedback.remove();
+    style.remove();
+  }, 2000);
 };
 
 const IMAGE_ASPECTS = [1, 1, 1, 1, 1, 1];
@@ -295,6 +535,8 @@ const applyTheme = (theme) => {
 };
 
 applyTheme(getSystemTheme());
+restoreOverlays();
+restoreTexts();
 mq.addEventListener("change", (e) => applyTheme(e.matches ? "dark" : "light"));
 
 dom.themeToggle.addEventListener("click", () => {
@@ -476,6 +718,12 @@ document.addEventListener('click', (e) => {
       fileInput.click();
     }
   }
+
+  const editBtn = e.target.closest('.edit-text-btn');
+  if (editBtn) {
+    const faceIndex = parseInt(editBtn.dataset.face, 10);
+    showTextEditor(faceIndex);
+  }
 });
 
 document.addEventListener('change', (e) => {
@@ -491,25 +739,18 @@ document.addEventListener('change', (e) => {
         saveCustomImage(faceIndex, dataUrl, (success, url) => {
           if (success && url) {
             const face = dom.faces[faceIndex];
-            let img = face.querySelector('img');
-            if (!img) {
-              img = new Image();
-              face.appendChild(img);
-            }
-            img.src = url;
-            img.style.objectFit = 'cover';
             
-            const uploadBtn = document.querySelector(`.upload-btn[data-face="${faceIndex}"]`);
-            if (uploadBtn) {
-              uploadBtn.style.opacity = '1';
-              uploadBtn.style.background = 'var(--accent)';
-              uploadBtn.style.color = 'var(--bg)';
-              setTimeout(() => {
-                uploadBtn.style.opacity = '';
-                uploadBtn.style.background = '';
-                uploadBtn.style.color = '';
-              }, 500);
+            let overlay = face.querySelector('.custom-overlay');
+            if (!overlay) {
+              overlay = document.createElement('div');
+              overlay.className = 'custom-overlay';
+              face.appendChild(overlay);
             }
+            overlay.style.backgroundImage = `url(${url})`;
+            
+            showUploadFeedback(faceIndex, true);
+          } else {
+            showUploadFeedback(faceIndex, false);
           }
         });
       };
