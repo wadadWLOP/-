@@ -78,10 +78,15 @@ const switchCombo = (comboId) => {
       CUSTOM_IMAGES[i] = combo.images[i] || null;
       CUSTOM_TEXTS[i] = combo.texts[i] || null;
     }
+  } else {
+    for (let i = 0; i < 6; i++) {
+      CUSTOM_IMAGES[i] = null;
+      CUSTOM_TEXTS[i] = null;
+    }
   }
 
   refreshFaceImages();
-  restoreOverlays();
+  restoreOverlays(true);
   restoreTexts();
   updateComboSelector();
 };
@@ -139,7 +144,10 @@ const restoreTexts = () => {
   }
 };
 
-const restoreOverlays = () => {
+const restoreOverlays = (clearExisting = false) => {
+  if (clearExisting) {
+    document.querySelectorAll('.custom-overlay').forEach(el => el.remove());
+  }
   for (let i = 0; i < CUSTOM_IMAGES.length; i++) {
     if (CUSTOM_IMAGES[i]) {
       const face = dom.faces[i];
