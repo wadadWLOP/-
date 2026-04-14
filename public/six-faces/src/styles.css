@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400&display=swap");
+@import url('https://juiceqiuqiu-1420133198.cos.ap-shanghai.myqcloud.com/乐米小奶泡体.ttf');
 
 @layer reset, tokens, base, layout, cube, ui, cards, reveal, theme, responsive;
 
@@ -30,7 +31,7 @@
     --muted: var(--dark-muted);
     --accent: var(--accent-dark);
 
-    --font-display: "Bebas Neue", sans-serif;
+    --font-display: "乐米小奶泡体", cursive;
     --font-mono: "DM Mono", monospace;
     --hairline: 0.0625rem;
     --ui-inset: 2rem;
