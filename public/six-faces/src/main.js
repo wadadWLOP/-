@@ -12,12 +12,81 @@ const CUSTOM_IMAGES = [null, null, null, null, null, null];
 const CUSTOM_TEXTS_KEY = 'six-faces-custom-texts';
 const CUSTOM_TEXTS = [null, null, null, null, null, null];
 
+const COMBOS_KEY = 'six-faces-combos';
+const CURRENT_COMBO_KEY = 'six-faces-current-combo';
+let COMBOS = [];
+let CURRENT_COMBO_ID = null;
+
+const COMBO_FOODIES = ['秋秋', '果汁'];
+
 const cos = new COS({
   SecretId: window.VITE_TENCENT_SECRET_ID || 'YOUR_SECRET_ID',
   SecretKey: window.VITE_TENCENT_SECRET_KEY || 'YOUR_SECRET_KEY',
   Bucket: 'juiceqiuqiu-1420133198',
   Region: 'ap-shanghai'
 });
+
+const loadCombos = () => {
+  try {
+    const saved = localStorage.getItem(COMBOS_KEY);
+    if (saved) {
+      COMBOS = JSON.parse(saved);
+    }
+    CURRENT_COMBO_ID = localStorage.getItem(CURRENT_COMBO_KEY);
+  } catch (e) {
+    console.error('Failed to load combos:', e);
+  }
+};
+
+const saveCombos = () => {
+  localStorage.setItem(COMBOS_KEY, JSON.stringify(COMBOS));
+};
+
+const saveCurrentCombo = () => {
+  if (CURRENT_COMBO_ID) {
+    localStorage.setItem(CURRENT_COMBO_KEY, CURRENT_COMBO_ID);
+  }
+};
+
+const createCombo = (name, foodie, rating) => {
+  const id = Date.now().toString();
+  const combo = {
+    id,
+    name,
+    foodie,
+    rating: rating || '',
+    images: [null, null, null, null, null, null],
+    texts: [null, null, null, null, null, null],
+    createdAt: new Date().toISOString()
+  };
+  COMBOS.push(combo);
+  saveCombos();
+  return combo;
+};
+
+const getCurrentCombo = () => {
+  return COMBOS.find(c => c.id === CURRENT_COMBO_ID) || null;
+};
+
+const switchCombo = (comboId) => {
+  CURRENT_COMBO_ID = comboId;
+  saveCurrentCombo();
+
+  const combo = getCurrentCombo();
+  if (combo) {
+    for (let i = 0; i < 6; i++) {
+      CUSTOM_IMAGES[i] = combo.images[i] || null;
+      CUSTOM_TEXTS[i] = combo.texts[i] || null;
+    }
+  }
+
+  refreshFaceImages();
+  restoreOverlays();
+  restoreTexts();
+  updateComboSelector();
+};
+
+loadCombos();
 
 const loadCustomImages = () => {
   try {
@@ -118,12 +187,20 @@ const saveCustomImage = (faceIndex, dataUrl, callback) => {
     } else {
       const url = `https://${data.Location}`;
       console.log('上传成功:', url);
-      
+
       try {
-        const saved = localStorage.getItem(CUSTOM_IMAGES_KEY);
-        const customImages = saved ? JSON.parse(saved) : new Array(6).fill(null);
-        customImages[faceIndex] = url;
-        localStorage.setItem(CUSTOM_IMAGES_KEY, JSON.stringify(customImages));
+        if (CURRENT_COMBO_ID) {
+          const combo = getCurrentCombo();
+          if (combo) {
+            combo.images[faceIndex] = url;
+            saveCombos();
+          }
+        } else {
+          const saved = localStorage.getItem(CUSTOM_IMAGES_KEY);
+          const customImages = saved ? JSON.parse(saved) : new Array(6).fill(null);
+          customImages[faceIndex] = url;
+          localStorage.setItem(CUSTOM_IMAGES_KEY, JSON.stringify(customImages));
+        }
         CUSTOM_IMAGES[faceIndex] = url;
         callback(true, url);
       } catch (e) {
@@ -268,13 +345,24 @@ const showTextEditor = (faceIndex) => {
     const newTitle = editor.querySelector('#edit-title').value;
     const newBody = editor.querySelector('#edit-body').value;
 
-    CUSTOM_TEXTS[faceIndex] = {
-      tag: newTag,
-      title: newTitle,
-      body: newBody
-    };
-
-    localStorage.setItem(CUSTOM_TEXTS_KEY, JSON.stringify(CUSTOM_TEXTS));
+    if (CURRENT_COMBO_ID) {
+      const combo = getCurrentCombo();
+      if (combo) {
+        combo.texts[faceIndex] = {
+          tag: newTag,
+          title: newTitle,
+          body: newBody
+        };
+        saveCombos();
+      }
+    } else {
+      CUSTOM_TEXTS[faceIndex] = {
+        tag: newTag,
+        title: newTitle,
+        body: newBody
+      };
+      localStorage.setItem(CUSTOM_TEXTS_KEY, JSON.stringify(CUSTOM_TEXTS));
+    }
 
     if (tag) tag.textContent = newTag;
     if (heading) heading.innerHTML = newTitle.replace(/\n/g, '<br>');
@@ -534,9 +622,188 @@ const applyTheme = (theme) => {
   refreshFaceImages();
 };
 
+const updateComboSelector = () => {
+  const selector = document.getElementById('combo-selector');
+  if (!selector) return;
+  selector.innerHTML = '<option value="">选择美食组合...</option>';
+  COMBOS.forEach(combo => {
+    const option = document.createElement('option');
+    option.value = combo.id;
+    option.textContent = combo.name;
+    if (combo.id === CURRENT_COMBO_ID) {
+      option.selected = true;
+    }
+    selector.appendChild(option);
+  });
+};
+
+const showCreateComboForm = () => {
+  const overlay = document.createElement('div');
+  overlay.className = 'combo-editor-overlay';
+  overlay.style.cssText = `
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 9998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  `;
+
+  const form = document.createElement('div');
+  form.className = 'combo-editor';
+  form.style.cssText = `
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 24px;
+    width: 90%;
+    max-width: 420px;
+    color: #fff;
+    font-family: var(--font-mono);
+  `;
+
+  let ratingValue = '';
+
+  form.innerHTML = `
+    <h3 style="margin: 0 0 20px 0; font-size: 16px; color: #888;">创建美食组合</h3>
+    <div style="margin-bottom: 16px;">
+      <label style="display: block; font-size: 12px; color: #888; margin-bottom: 6px;">饭店名称</label>
+      <input type="text" id="combo-name" placeholder="输入饭店名称" style="
+        width: 100%;
+        padding: 10px 12px;
+        background: #0a0a0a;
+        border: 1px solid #333;
+        border-radius: 6px;
+        color: #fff;
+        font-size: 14px;
+        box-sizing: border-box;
+      " />
+    </div>
+    <div style="margin-bottom: 16px;">
+      <label style="display: block; font-size: 12px; color: #888; margin-bottom: 6px;">谁是贪吃鬼</label>
+      <div style="display: flex; gap: 12px;">
+        ${COMBO_FOODIES.map(f => `
+          <label style="flex: 1; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="radio" name="combo-foodie" value="${f}" style="accent-color: var(--accent);" />
+            <span>${f}</span>
+          </label>
+        `).join('')}
+      </div>
+    </div>
+    <div style="margin-bottom: 20px;">
+      <label style="display: block; font-size: 12px; color: #888; margin-bottom: 6px;">饭店评价</label>
+      <input type="text" id="combo-rating" placeholder="如：★★★★★ 或 很好吃" style="
+        width: 100%;
+        padding: 10px 12px;
+        background: #0a0a0a;
+        border: 1px solid #333;
+        border-radius: 6px;
+        color: #fff;
+        font-size: 14px;
+        box-sizing: border-box;
+      " />
+    </div>
+    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+      <button id="combo-cancel" style="
+        padding: 10px 20px;
+        background: transparent;
+        border: 1px solid #555;
+        border-radius: 6px;
+        color: #888;
+        cursor: pointer;
+        font-size: 14px;
+      ">取消</button>
+      <button id="combo-save" style="
+        padding: 10px 20px;
+        background: #4a9;
+        border: none;
+        border-radius: 6px;
+        color: #fff;
+        cursor: pointer;
+        font-size: 14px;
+      ">创建</button>
+    </div>
+  `;
+
+  overlay.appendChild(form);
+  document.body.appendChild(overlay);
+
+  const closeForm = () => {
+    document.body.removeChild(overlay);
+  };
+
+  form.querySelector('#combo-cancel').addEventListener('click', closeForm);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeForm();
+  });
+
+  form.querySelector('#combo-save').addEventListener('click', () => {
+    const name = form.querySelector('#combo-name').value.trim();
+    const foodieRadio = form.querySelector('input[name="combo-foodie"]:checked');
+    const foodie = foodieRadio ? foodieRadio.value : '';
+    const rating = form.querySelector('#combo-rating').value.trim();
+
+    if (!name) {
+      alert('请输入饭店名称');
+      return;
+    }
+    if (!foodie) {
+      alert('请选择贪吃鬼');
+      return;
+    }
+
+    const newCombo = createCombo(name, foodie, rating);
+    CURRENT_COMBO_ID = newCombo.id;
+    saveCurrentCombo();
+    updateComboSelector();
+    closeForm();
+  });
+};
+
+const initComboUI = () => {
+  updateComboSelector();
+
+  const selector = document.getElementById('combo-selector');
+  const createBtn = document.getElementById('create-combo-btn');
+
+  if (selector) {
+    selector.addEventListener('change', (e) => {
+      const comboId = e.target.value;
+      if (comboId) {
+        switchCombo(comboId);
+      } else {
+        CURRENT_COMBO_ID = null;
+        saveCurrentCombo();
+        refreshFaceImages();
+        restoreOverlays();
+        restoreTexts();
+      }
+    });
+  }
+
+  if (createBtn) {
+    createBtn.addEventListener('click', showCreateComboForm);
+  }
+};
+
+const initComboData = () => {
+  if (CURRENT_COMBO_ID) {
+    const combo = getCurrentCombo();
+    if (combo) {
+      for (let i = 0; i < 6; i++) {
+        CUSTOM_IMAGES[i] = combo.images[i] || null;
+        CUSTOM_TEXTS[i] = combo.texts[i] || null;
+      }
+    }
+  }
+};
+
 applyTheme(getSystemTheme());
+initComboData();
 restoreOverlays();
 restoreTexts();
+initComboUI();
 mq.addEventListener("change", (e) => applyTheme(e.matches ? "dark" : "light"));
 
 dom.themeToggle.addEventListener("click", () => {
@@ -765,7 +1032,17 @@ document.addEventListener('click', (e) => {
   const resetBtn = e.target.closest('.reset-btn');
   if (resetBtn) {
     if (confirm('确定要重置所有自定义图片吗？这将恢复默认图片。')) {
-      localStorage.removeItem(CUSTOM_IMAGES_KEY);
+      if (CURRENT_COMBO_ID) {
+        const combo = getCurrentCombo();
+        if (combo) {
+          combo.images = [null, null, null, null, null, null];
+          combo.texts = [null, null, null, null, null, null];
+          saveCombos();
+        }
+      } else {
+        localStorage.removeItem(CUSTOM_IMAGES_KEY);
+        localStorage.removeItem(CUSTOM_TEXTS_KEY);
+      }
       location.reload();
     }
   }

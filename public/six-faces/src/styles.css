@@ -281,6 +281,51 @@
     }
   }
 
+  #combo-bar {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: calc(var(--z-ui) + 5);
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  #combo-selector {
+    padding: 0.5rem 1rem;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    cursor: pointer;
+    min-width: 160px;
+    backdrop-filter: blur(8px);
+  }
+
+  #combo-selector:hover {
+    border-color: var(--accent);
+  }
+
+  #create-combo-btn {
+    padding: 0.5rem 1rem;
+    background: var(--accent);
+    border: none;
+    border-radius: 6px;
+    color: #000;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+
+  #create-combo-btn:hover {
+    opacity: 0.85;
+    transform: scale(1.05);
+  }
+
   #face_caption {
     position: fixed;
     bottom: var(--ui-inset);
