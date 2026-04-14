@@ -108,8 +108,6 @@ export function DiaryWritePage() {
             const content = data.full_content || data.excerpt || '';
             setWeather(data.weather || 'sunny');
             setDiaryCategory(data.category || '');
-                      // 始终以普通模式加载文字内容
-            setIsPhotoMode(false);
             
             // 解析保存的内容，区分左右页
             const pageContents = content.split('\n==========\n');
@@ -122,8 +120,81 @@ export function DiaryWritePage() {
             });
             setPages(parsedPages);
             
-            // 如果有照片，加载到照片页
-            if (data.photo_url) {
+            // 优先加载 photo_pages（新格式），其次加载 photos，最后加载 photo_url（旧格式）
+            if (data.photo_pages) {
+              // 加载完整的照片页数据
+              const photoPagesData = JSON.parse(data.photo_pages);
+              setPhotoPages(photoPagesData);
+              setIsPhotoMode(true);
+            } else if (data.photos) {
+              // 加载所有照片数据
+              const photosData = JSON.parse(data.photos);
+              const floatingPhotos = photosData.filter((p: any) => p.type === 'floating');
+              const pagePhotos = photosData.filter((p: any) => p.type === 'photoPage');
+              
+              // 重建 floatingElements
+              const elements = [];
+              if (floatingPhotos.length > 0) {
+                floatingPhotos.forEach((photo: any, index: number) => {
+                  elements.push({
+                    id: `photo-${index}`,
+                    type: 'photo' as const,
+                    x: photo.x || 50,
+                    y: photo.y || 50,
+                    width: photo.width || 100,
+                    height: photo.height || 100,
+                    rotation: photo.rotation || 0,
+                    scale: photo.scale || 1,
+                    zIndex: photo.zIndex || 1,
+                    src: photo.src
+                  });
+                });
+              }
+              
+              // 如果有贴纸，添加到元素中
+              if (data.sticker_emoji) {
+                elements.push({
+                  id: 'sticker-1',
+                  type: 'sticker' as const,
+                  x: 250,
+                  y: 80,
+                  width: 60,
+                  height: 60,
+                  rotation: 10,
+                  scale: 1,
+                  zIndex: 2,
+                  emoji: data.sticker_emoji
+                });
+              }
+              
+              setFloatingElements(elements);
+              
+              // 重建 photoPages
+              if (pagePhotos.length > 0) {
+                const reconstructedPhotoPages: PhotoPageData[] = [];
+                pagePhotos.forEach((photo: any) => {
+                  const pageIndex = photo.pageIndex || 0;
+                  if (!reconstructedPhotoPages[pageIndex]) {
+                    reconstructedPhotoPages[pageIndex] = {
+                      topImage: null,
+                      bottomImage: null,
+                      topDescription: '',
+                      bottomDescription: ''
+                    };
+                  }
+                  if (photo.position === 'top') {
+                    reconstructedPhotoPages[pageIndex].topImage = photo.src;
+                    reconstructedPhotoPages[pageIndex].topDescription = photo.description || '';
+                  } else if (photo.position === 'bottom') {
+                    reconstructedPhotoPages[pageIndex].bottomImage = photo.src;
+                    reconstructedPhotoPages[pageIndex].bottomDescription = photo.description || '';
+                  }
+                });
+                setPhotoPages(reconstructedPhotoPages);
+                setIsPhotoMode(true);
+              }
+            } else if (data.photo_url) {
+              // 旧格式：只有一张照片
               setPhotoPages([{
                 topImage: data.photo_url,
                 bottomImage: null,
@@ -132,7 +203,8 @@ export function DiaryWritePage() {
               }]);
             }
             
-            if (data.sticker_emoji) {
+            // 如果没有 photo_pages 但有 sticker_emoji，加载贴纸
+            if (!data.photo_pages && data.sticker_emoji && !data.photos) {
               setFloatingElements([{
                 id: 'sticker-1',
                 type: 'sticker',
@@ -145,6 +217,11 @@ export function DiaryWritePage() {
                 zIndex: 2,
                 emoji: data.sticker_emoji,
               }]);
+            }
+            
+            // 如果没有 photo_pages，使用普通模式
+            if (!data.photo_pages) {
+              setIsPhotoMode(false);
             }
           }
         } catch (error) {
@@ -445,24 +522,53 @@ export function DiaryWritePage() {
   const handleArchive = async () => {
     setIsArchiving(true);
     try {
-      // 提取第一张照片 - 优先从 floatingElements 获取，其次从 photoPages 获取
-      let photoUrl: string | undefined;
-      const photoElement = floatingElements.find(el => el.type === 'photo');
-      if (photoElement?.src) {
-        photoUrl = photoElement.src;
-      } else {
-        // 从照片模式获取第一张图片
-        const firstPhotoPage = photoPages[0];
-        if (firstPhotoPage?.topImage) {
-          photoUrl = firstPhotoPage.topImage;
-        } else if (firstPhotoPage?.bottomImage) {
-          photoUrl = firstPhotoPage.bottomImage;
-        }
-      }
+      // 提取所有照片 - 从 floatingElements 和 photoPages 获取
+      const allPhotos = [];
       
-      // 提取第一个贴纸
+      // 从 floatingElements 获取照片
+      const photoElements = floatingElements.filter(el => el.type === 'photo' && el.src);
+      photoElements.forEach(photo => {
+        allPhotos.push({
+          type: 'floating',
+          src: photo.src,
+          x: photo.x,
+          y: photo.y,
+          width: photo.width,
+          height: photo.height,
+          rotation: photo.rotation,
+          scale: photo.scale,
+          zIndex: photo.zIndex
+        });
+      });
+      
+      // 从 photoPages 获取照片
+      photoPages.forEach((page, pageIndex) => {
+        if (page.topImage) {
+          allPhotos.push({
+            type: 'photoPage',
+            position: 'top',
+            pageIndex,
+            src: page.topImage,
+            description: page.topDescription
+          });
+        }
+        if (page.bottomImage) {
+          allPhotos.push({
+            type: 'photoPage',
+            position: 'bottom',
+            pageIndex,
+            src: page.bottomImage,
+            description: page.bottomDescription
+          });
+        }
+      });
+      
+      // 提取第一个贴纸（保持向后兼容）
       const stickerElement = floatingElements.find(el => el.type === 'sticker');
       const stickerEmoji = stickerElement?.emoji;
+      
+      // 保存所有浮动元素
+      const allFloatingElements = floatingElements;
       
       // 生成摘要（取第一页左页前 50 字）
       const firstLeftContent = pages[0]?.leftContent || '';
@@ -470,6 +576,9 @@ export function DiaryWritePage() {
       
       // 合并所有页面的内容
       const allContent = pages.map(p => `${p.leftContent}\n|||${p.rightContent}`).join('\n==========\n');
+      
+      // 合并所有照片页的数据
+      const allPhotoPages = photoPages;
       
       if (archiveId) {
         // 从归档卡片进入，更新原有记录
@@ -481,9 +590,12 @@ export function DiaryWritePage() {
             category: diaryCategory,
             weather: weather,
             word_count: totalChars,
-            photo_url: photoUrl,
+            photo_url: allPhotos.length > 0 ? allPhotos[0].src : undefined,
             sticker_emoji: stickerEmoji,
             background_color: '#FFFBF0',
+            photos: JSON.stringify(allPhotos),
+            floating_elements: JSON.stringify(allFloatingElements),
+            photo_pages: JSON.stringify(allPhotoPages),
           })
           .eq('id', archiveId);
       } else {
@@ -497,9 +609,12 @@ export function DiaryWritePage() {
           category: diaryCategory,
           weather: weather,
           word_count: totalChars,
-          photo_url: photoUrl,
+          photo_url: allPhotos.length > 0 ? allPhotos[0].src : undefined,
           sticker_emoji: stickerEmoji,
           background_color: '#FFFBF0',
+          photos: JSON.stringify(allPhotos),
+          floating_elements: JSON.stringify(allFloatingElements),
+          photo_pages: JSON.stringify(allPhotoPages),
         });
       }
       
