@@ -220,13 +220,26 @@ export function DiaryWritePage() {
             }
             
             // 根据是否有照片页数据来决定模式
-            if (data.photo_pages || (data.photos && JSON.parse(data.photos).some((p: any) => p.type === 'photoPage'))) {
-              setIsPhotoMode(true);
-            } else if (data.photo_url) {
-              // 旧格式：只有一张照片，也使用照片模式
-              setIsPhotoMode(true);
-            } else {
-              setIsPhotoMode(false);
+            try {
+              const hasPhotoPages = data.photo_pages && JSON.parse(data.photo_pages)?.length > 0;
+              const hasPhotoPagePhotos = data.photos && JSON.parse(data.photos)?.some((p: any) => p.type === 'photoPage');
+              
+              if (hasPhotoPages || hasPhotoPagePhotos) {
+                setIsPhotoMode(true);
+              } else if (data.photo_url) {
+                // 旧格式：只有一张照片，也使用照片模式
+                setIsPhotoMode(true);
+              } else {
+                setIsPhotoMode(false);
+              }
+            } catch (error) {
+              console.error('解析照片数据失败:', error);
+              // 如果解析失败，但有 photo_url，使用照片模式
+              if (data.photo_url) {
+                setIsPhotoMode(true);
+              } else {
+                setIsPhotoMode(false);
+              }
             }
           }
         } catch (error) {
