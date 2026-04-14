@@ -59,10 +59,10 @@ const restoreTexts = () => {
         const textCard = section.querySelector('.text-card');
         if (textCard) {
           const tag = textCard.querySelector('.tag');
-          const h2 = textCard.querySelector('h2');
+          const heading = textCard.querySelector('h1') || textCard.querySelector('h2');
           const p = textCard.querySelector('.body-text');
           if (CUSTOM_TEXTS[i].tag && tag) tag.textContent = CUSTOM_TEXTS[i].tag;
-          if (CUSTOM_TEXTS[i].title && h2) h2.innerHTML = CUSTOM_TEXTS[i].title.replace(/\n/g, '<br>');
+          if (CUSTOM_TEXTS[i].title && heading) heading.innerHTML = CUSTOM_TEXTS[i].title.replace(/\n/g, '<br>');
           if (CUSTOM_TEXTS[i].body && p) p.textContent = CUSTOM_TEXTS[i].body;
         }
       }
@@ -152,11 +152,11 @@ const showTextEditor = (faceIndex) => {
   if (!textCard) return;
 
   const tag = textCard.querySelector('.tag');
-  const h2 = textCard.querySelector('h2');
+  const heading = textCard.querySelector('h1') || textCard.querySelector('h2');
   const p = textCard.querySelector('.body-text');
 
   const currentTag = tag ? tag.textContent : '';
-  const currentTitle = h2 ? h2.textContent.replace(/<br>/g, '\n') : '';
+  const currentTitle = heading ? heading.textContent.replace(/<br>/g, '\n') : '';
   const currentBody = p ? p.textContent : '';
 
   const overlay = document.createElement('div');
@@ -277,7 +277,7 @@ const showTextEditor = (faceIndex) => {
     localStorage.setItem(CUSTOM_TEXTS_KEY, JSON.stringify(CUSTOM_TEXTS));
 
     if (tag) tag.textContent = newTag;
-    if (h2) h2.innerHTML = newTitle.replace(/\n/g, '<br>');
+    if (heading) heading.innerHTML = newTitle.replace(/\n/g, '<br>');
     if (p) p.textContent = newBody;
 
     closeEditor();
