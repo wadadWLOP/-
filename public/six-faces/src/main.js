@@ -89,6 +89,7 @@ const switchCombo = (comboId) => {
   restoreOverlays(true);
   restoreTexts();
   updateComboSelector();
+  updateHUD(0);
 };
 
 loadCombos();
@@ -582,10 +583,12 @@ const updateHUD = (s) => {
   dom.progFill.style.width = `${p}%`;
   if (si !== lastFaceIdx) {
     lastFaceIdx = si;
-    const name = FACE_NAMES[si] ?? "";
-    dom.sceneName.textContent = name;
+    const section = document.getElementById(`s${si}`);
+    const tagEl = section?.querySelector('.tag');
+    const displayName = tagEl ? tagEl.textContent?.toUpperCase() || '' : (FACE_NAMES[si] ?? "");
+    dom.sceneName.textContent = displayName;
     dom.captionNum.textContent = String(si + 1).padStart(2, "0");
-    dom.captionName.textContent = name;
+    dom.captionName.textContent = displayName;
     sceneDots.forEach((d, i) => d.classList.toggle("active", i === si));
   }
 };
