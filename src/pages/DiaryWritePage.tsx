@@ -219,8 +219,13 @@ export function DiaryWritePage() {
               }]);
             }
             
-            // 如果没有 photo_pages，使用普通模式
-            if (!data.photo_pages) {
+            // 根据是否有照片页数据来决定模式
+            if (data.photo_pages || (data.photos && JSON.parse(data.photos).some((p: any) => p.type === 'photoPage'))) {
+              setIsPhotoMode(true);
+            } else if (data.photo_url) {
+              // 旧格式：只有一张照片，也使用照片模式
+              setIsPhotoMode(true);
+            } else {
               setIsPhotoMode(false);
             }
           }
