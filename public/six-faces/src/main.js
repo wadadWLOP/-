@@ -643,7 +643,8 @@ const showCreateComboForm = () => {
   overlay.style.cssText = `
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.85);
+    background: rgba(20, 16, 13, 0.9);
+    backdrop-filter: blur(4px);
     z-index: 9998;
     display: flex;
     align-items: center;
@@ -653,76 +654,87 @@ const showCreateComboForm = () => {
   const form = document.createElement('div');
   form.className = 'combo-editor';
   form.style.cssText = `
-    background: #1a1a1a;
-    border: 1px solid #333;
-    border-radius: 12px;
-    padding: 24px;
+    background: var(--card-bg);
+    border: var(--hairline) solid var(--card-border);
+    border-radius: 8px;
+    padding: 2rem;
     width: 90%;
-    max-width: 420px;
-    color: #fff;
+    max-width: 360px;
+    color: var(--fg);
     font-family: var(--font-mono);
+    backdrop-filter: blur(12px);
   `;
 
-  let ratingValue = '';
-
   form.innerHTML = `
-    <h3 style="margin: 0 0 20px 0; font-size: 16px; color: #888;">创建美食组合</h3>
-    <div style="margin-bottom: 16px;">
-      <label style="display: block; font-size: 12px; color: #888; margin-bottom: 6px;">饭店名称</label>
-      <input type="text" id="combo-name" placeholder="输入饭店名称" style="
+    <h3 style="margin: 0 0 1.5rem 0; font-family: var(--font-display); font-size: 1.5rem; letter-spacing: 0.08em; color: var(--muted);">NEW COMBO</h3>
+    <div style="margin-bottom: 1rem;">
+      <label style="display: block; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem;">Restaurant</label>
+      <input type="text" id="combo-name" placeholder="Enter restaurant name" style="
         width: 100%;
-        padding: 10px 12px;
-        background: #0a0a0a;
-        border: 1px solid #333;
-        border-radius: 6px;
-        color: #fff;
-        font-size: 14px;
+        padding: 0.6rem 0.75rem;
+        background: rgba(0, 0, 0, 0.4);
+        border: var(--hairline) solid var(--card-border);
+        border-radius: 4px;
+        color: var(--fg);
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
         box-sizing: border-box;
+        transition: border-color 0.3s;
       " />
     </div>
-    <div style="margin-bottom: 16px;">
-      <label style="display: block; font-size: 12px; color: #888; margin-bottom: 6px;">谁是贪吃鬼</label>
-      <div style="display: flex; gap: 12px;">
+    <div style="margin-bottom: 1rem;">
+      <label style="display: block; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem;">Glutton</label>
+      <div style="display: flex; gap: 0.75rem;">
         ${COMBO_FOODIES.map(f => `
-          <label style="flex: 1; display: flex; align-items: center; gap: 8px; cursor: pointer;">
-            <input type="radio" name="combo-foodie" value="${f}" style="accent-color: var(--accent);" />
-            <span>${f}</span>
+          <label style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.6rem; background: rgba(0, 0, 0, 0.4); border: var(--hairline) solid var(--card-border); border-radius: 4px; cursor: pointer; transition: border-color 0.3s, background 0.3s;">
+            <input type="radio" name="combo-foodie" value="${f}" style="display: none;" />
+            <span style="font-size: 0.8rem; color: var(--muted);">${f}</span>
           </label>
         `).join('')}
       </div>
     </div>
-    <div style="margin-bottom: 20px;">
-      <label style="display: block; font-size: 12px; color: #888; margin-bottom: 6px;">饭店评价</label>
-      <input type="text" id="combo-rating" placeholder="如：★★★★★ 或 很好吃" style="
+    <div style="margin-bottom: 1.5rem;">
+      <label style="display: block; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem;">Rating</label>
+      <input type="text" id="combo-rating" placeholder="★★★★★" style="
         width: 100%;
-        padding: 10px 12px;
-        background: #0a0a0a;
-        border: 1px solid #333;
-        border-radius: 6px;
-        color: #fff;
-        font-size: 14px;
+        padding: 0.6rem 0.75rem;
+        background: rgba(0, 0, 0, 0.4);
+        border: var(--hairline) solid var(--card-border);
+        border-radius: 4px;
+        color: var(--fg);
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
         box-sizing: border-box;
+        transition: border-color 0.3s;
       " />
     </div>
-    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+    <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
       <button id="combo-cancel" style="
-        padding: 10px 20px;
+        padding: 0.6rem 1.25rem;
         background: transparent;
-        border: 1px solid #555;
-        border-radius: 6px;
-        color: #888;
+        border: var(--hairline) solid var(--card-border);
+        border-radius: 4px;
+        color: var(--muted);
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
         cursor: pointer;
-        font-size: 14px;
-      ">取消</button>
+        transition: border-color 0.3s, color 0.3s;
+      ">Cancel</button>
       <button id="combo-save" style="
-        padding: 10px 20px;
-        background: #4a9;
+        padding: 0.6rem 1.25rem;
+        background: var(--accent);
         border: none;
-        border-radius: 6px;
-        color: #fff;
+        border-radius: 4px;
+        color: #000;
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
         cursor: pointer;
-        font-size: 14px;
-      ">创建</button>
+        transition: opacity 0.3s;
+      ">Create</button>
     </div>
   `;
 
