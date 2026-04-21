@@ -162,7 +162,13 @@ export function CoreFeaturesGrid() {
 
       <div className="w-full flex flex-col items-center">
         <span className="text-pink-200 text-lg">♥</span>
-        <p className="text-base mt-1 font-bold" style={{ color: '#5D4037' }}>秋秋和果汁的秘密小屋</p>
+        <button
+          onClick={() => navigate('/visitor-logs')}
+          className="text-base mt-1 font-bold cursor-pointer hover:opacity-80 transition-opacity"
+          style={{ color: '#5D4037' }}
+        >
+          秋秋和果汁的秘密小屋
+        </button>
       </div>
     </div>
   );

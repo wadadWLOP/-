@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { logVisitor } from '../lib/supabase';
 
 const CORRECT_PASSWORD = '260221';
 const PASSWORD_KEY = 'site-password-verified';
@@ -25,6 +26,7 @@ export function PasswordGate({ children }: PasswordGateProps) {
       localStorage.setItem(PASSWORD_KEY, 'true');
       setIsVerified(true);
       setError(false);
+      logVisitor();
     } else {
       setError(true);
     }

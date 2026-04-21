@@ -59,3 +59,48 @@ export const uploadImage = async (file: File): Promise<string> => {
     });
   });
 };
+
+export interface VisitorLog {
+  id: number;
+  visited_at: string;
+  ip_address: string | null;
+  user_agent: string | null;
+  page_url: string | null;
+}
+
+export const logVisitor = async () => {
+  try {
+    const response = await fetch('https://ipapi.co/json/');
+    const data = await response.json();
+    
+    const { error } = await supabase.from('visitor_logs').insert([
+      {
+        visited_at: new Date().toISOString(),
+        ip_address: data.ip || null,
+        user_agent: navigator.userAgent,
+        page_url: window.location.href
+      }
+    ]);
+    
+    if (error) {
+      console.error('记录访客失败:', error);
+    }
+  } catch (err) {
+    console.error('记录访客失败:', err);
+  }
+};
+
+export const getVisitorLogs = async (): Promise<VisitorLog[]> => {
+  const { data, error } = await supabase
+    .from('visitor_logs')
+    .select('*')
+    .order('visited_at', { ascending: false })
+    .limit(100);
+  
+  if (error) {
+    console.error('获取访客日志失败:', error);
+    return [];
+  }
+  
+  return data || [];
+};
