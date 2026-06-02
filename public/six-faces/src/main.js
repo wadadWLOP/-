@@ -635,6 +635,8 @@ const applyTheme = (theme) => {
 
 const updateComboSelector = () => {
   const selector = document.getElementById('combo-selector');
+  const renameBtn = document.getElementById('combo-rename-btn');
+  const deleteBtn = document.getElementById('combo-delete-btn');
   if (!selector) return;
   selector.innerHTML = '<option value="">选择美食组合...</option>';
   COMBOS.forEach(combo => {
@@ -645,6 +647,367 @@ const updateComboSelector = () => {
       option.selected = true;
     }
     selector.appendChild(option);
+  });
+
+  const hasActive = !!CURRENT_COMBO_ID;
+  if (renameBtn) renameBtn.disabled = !hasActive;
+  if (deleteBtn) deleteBtn.disabled = !hasActive;
+};
+
+const validateComboName = (name, excludeId = null) => {
+  const trimmed = (name || '').trim();
+  if (!trimmed) {
+    return { valid: false, message: '名称不能为空' };
+  }
+  if (trimmed.length > 20) {
+    return { valid: false, message: '名称不能超过 20 个字符' };
+  }
+  const duplicate = COMBOS.find(c => c.id !== excludeId && c.name === trimmed);
+  if (duplicate) {
+    return { valid: false, message: '名称已存在，请使用其他名称' };
+  }
+  return { valid: true, name: trimmed };
+};
+
+const renameCombo = (comboId) => {
+  const combo = COMBOS.find(c => c.id === comboId);
+  if (!combo) return;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'combo-editor-overlay';
+  overlay.style.cssText = `
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 16, 13, 0.9);
+    backdrop-filter: blur(4px);
+    z-index: 9998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  `;
+
+  const form = document.createElement('div');
+  form.className = 'combo-editor';
+  form.style.cssText = `
+    background: var(--card-bg);
+    border: var(--hairline) solid var(--card-border);
+    border-radius: 8px;
+    padding: 2rem;
+    width: 90%;
+    max-width: 360px;
+    color: var(--fg);
+    font-family: var(--font-mono);
+    backdrop-filter: blur(12px);
+  `;
+
+  form.innerHTML = `
+    <h3 style="margin: 0 0 1.5rem 0; font-family: var(--font-display); font-size: 1.5rem; letter-spacing: 0.08em; color: var(--muted);">RENAME COMBO</h3>
+    <div style="margin-bottom: 1rem;">
+      <label style="display: block; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem;">New Name</label>
+      <input type="text" id="rename-input" value="${combo.name}" maxlength="20" style="
+        width: 100%;
+        padding: 0.6rem 0.75rem;
+        background: rgba(0, 0, 0, 0.4);
+        border: var(--hairline) solid var(--card-border);
+        border-radius: 4px;
+        color: var(--fg);
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        box-sizing: border-box;
+        transition: border-color 0.3s;
+      " />
+      <p id="rename-error" style="color: #e74c3c; font-size: 0.7rem; margin: 0.5rem 0 0 0; min-height: 1rem;"></p>
+    </div>
+    <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+      <button id="rename-cancel" style="
+        padding: 0.6rem 1.25rem;
+        background: transparent;
+        border: var(--hairline) solid var(--card-border);
+        border-radius: 4px;
+        color: var(--muted);
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: border-color 0.3s, color 0.3s;
+      ">Cancel</button>
+      <button id="rename-save" style="
+        padding: 0.6rem 1.25rem;
+        background: var(--accent);
+        border: none;
+        border-radius: 4px;
+        color: #000;
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: opacity 0.3s;
+      ">Save</button>
+    </div>
+  `;
+
+  overlay.appendChild(form);
+  document.body.appendChild(overlay);
+
+  const input = form.querySelector('#rename-input');
+  const errorEl = form.querySelector('#rename-error');
+  input.focus();
+  input.select();
+
+  const closeForm = () => {
+    document.body.removeChild(overlay);
+  };
+
+  const trySave = () => {
+    const validation = validateComboName(input.value, comboId);
+    if (!validation.valid) {
+      errorEl.textContent = validation.message;
+      input.style.borderColor = '#e74c3c';
+      return;
+    }
+    combo.name = validation.name;
+    saveCombos();
+    updateComboSelector();
+    closeForm();
+    showToast('重命名成功', 'success');
+  };
+
+  input.addEventListener('input', () => {
+    errorEl.textContent = '';
+    input.style.borderColor = 'var(--card-border)';
+  });
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') trySave();
+    if (e.key === 'Escape') closeForm();
+  });
+
+  form.querySelector('#rename-cancel').addEventListener('click', closeForm);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeForm();
+  });
+  form.querySelector('#rename-save').addEventListener('click', trySave);
+};
+
+const deleteCombo = (comboId) => {
+  const combo = COMBOS.find(c => c.id === comboId);
+  if (!combo) return;
+
+  if (!confirm(`确定要删除组合 "${combo.name}" 吗？此操作无法撤销。`)) {
+    return;
+  }
+
+  const index = COMBOS.findIndex(c => c.id === comboId);
+  if (index >= 0) {
+    COMBOS.splice(index, 1);
+    saveCombos();
+
+    if (CURRENT_COMBO_ID === comboId) {
+      CURRENT_COMBO_ID = null;
+      saveCurrentCombo();
+      for (let i = 0; i < 6; i++) {
+        CUSTOM_IMAGES[i] = null;
+        CUSTOM_TEXTS[i] = null;
+      }
+      refreshFaceImages();
+      restoreOverlays(true);
+      restoreTexts();
+    }
+    updateComboSelector();
+    showToast('删除成功', 'success');
+  }
+};
+
+const showToast = (message, type = 'info') => {
+  const toast = document.createElement('div');
+  const bgColor = type === 'success' ? 'rgba(74, 153, 79, 0.9)' :
+                  type === 'error' ? 'rgba(180, 60, 60, 0.9)' :
+                  'rgba(60, 60, 60, 0.9)';
+  toast.style.cssText = `
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    background: ${bgColor};
+    color: white;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: var(--font-mono);
+    z-index: 9999;
+    animation: toastSlide 2s ease-in-out forwards;
+    pointer-events: none;
+  `;
+  toast.textContent = message;
+
+  const existingStyle = document.getElementById('toast-animation-style');
+  if (!existingStyle) {
+    const style = document.createElement('style');
+    style.id = 'toast-animation-style';
+    style.textContent = `
+      @keyframes toastSlide {
+        0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+        15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+        85% { opacity: 1; transform: translateX(-50%) translateY(0); }
+        100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2000);
+};
+
+const showComboManager = () => {
+  const overlay = document.createElement('div');
+  overlay.className = 'combo-manager-overlay';
+  overlay.style.cssText = `
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 16, 13, 0.9);
+    backdrop-filter: blur(4px);
+    z-index: 9998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  `;
+
+  const panel = document.createElement('div');
+  panel.className = 'combo-manager';
+  panel.style.cssText = `
+    background: var(--card-bg);
+    border: var(--hairline) solid var(--card-border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    width: 90%;
+    max-width: 480px;
+    max-height: 80vh;
+    overflow-y: auto;
+    color: var(--fg);
+    font-family: var(--font-mono);
+    backdrop-filter: blur(12px);
+  `;
+
+  const renderList = () => {
+    if (COMBOS.length === 0) {
+      return `
+        <div style="text-align: center; padding: 2rem 1rem; color: var(--muted);">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">🍽️</div>
+          <p style="margin: 0; font-size: 0.85rem;">还没有任何组合</p>
+          <p style="margin: 0.5rem 0 0 0; font-size: 0.75rem;">点击右上角"+ 新组合"开始创建</p>
+        </div>
+      `;
+    }
+    return COMBOS.map(combo => {
+      const isActive = combo.id === CURRENT_COMBO_ID;
+      const imageCount = combo.images.filter(img => img).length;
+      return `
+        <div class="combo-manager-item" data-id="${combo.id}" style="
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          padding: 0.75rem;
+          margin-bottom: 0.5rem;
+          background: ${isActive ? 'rgba(212, 168, 75, 0.15)' : 'rgba(0, 0, 0, 0.3)'};
+          border: var(--hairline) solid ${isActive ? 'var(--accent)' : 'var(--card-border)'};
+          border-radius: 6px;
+          transition: all 0.2s;
+        ">
+          <div style="flex: 1; min-width: 0;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+              ${isActive ? '<span style="color: var(--accent); font-size: 0.7rem;">●</span>' : ''}
+              <span style="font-family: var(--font-display); font-size: 0.95rem; color: var(--fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${combo.name}</span>
+            </div>
+            <div style="font-size: 0.7rem; color: var(--muted);">
+              ${imageCount}/6 张图片 · ${combo.foodie || '未指定'} · ${combo.rating || '未评分'}
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.25rem;">
+            <button class="combo-mgr-btn" data-action="switch" data-id="${combo.id}" ${isActive ? 'disabled' : ''} style="
+              padding: 0.3rem 0.6rem;
+              background: ${isActive ? 'transparent' : 'var(--accent)'};
+              border: var(--hairline) solid ${isActive ? 'var(--card-border)' : 'var(--accent)'};
+              border-radius: 3px;
+              color: ${isActive ? 'var(--muted)' : '#000'};
+              font-size: 0.65rem;
+              letter-spacing: 0.1em;
+              text-transform: uppercase;
+              cursor: ${isActive ? 'default' : 'pointer'};
+              font-family: var(--font-mono);
+            ">${isActive ? '当前' : '切换'}</button>
+            <button class="combo-mgr-btn" data-action="rename" data-id="${combo.id}" style="
+              padding: 0.3rem 0.5rem;
+              background: transparent;
+              border: var(--hairline) solid var(--card-border);
+              border-radius: 3px;
+              color: var(--muted);
+              font-size: 0.65rem;
+              cursor: pointer;
+              font-family: var(--font-mono);
+            " title="重命名">✎</button>
+            <button class="combo-mgr-btn" data-action="delete" data-id="${combo.id}" style="
+              padding: 0.3rem 0.5rem;
+              background: transparent;
+              border: var(--hairline) solid var(--card-border);
+              border-radius: 3px;
+              color: #e74c3c;
+              font-size: 0.65rem;
+              cursor: pointer;
+              font-family: var(--font-mono);
+            " title="删除">✕</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  };
+
+  panel.innerHTML = `
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+      <h3 style="margin: 0; font-family: var(--font-display); font-size: 1.4rem; letter-spacing: 0.08em; color: var(--muted);">MANAGE COMBOS</h3>
+      <button id="manager-close" style="
+        background: transparent;
+        border: none;
+        color: var(--muted);
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 0.25rem 0.5rem;
+        line-height: 1;
+      ">✕</button>
+    </div>
+    <p style="font-size: 0.7rem; color: var(--muted); margin: 0 0 1rem 0; letter-spacing: 0.05em;">共 ${COMBOS.length} 个组合 · 切换、编辑或删除组合</p>
+    <div id="combo-list">${renderList()}</div>
+  `;
+
+  overlay.appendChild(panel);
+  document.body.appendChild(overlay);
+
+  const closeManager = () => {
+    document.body.removeChild(overlay);
+  };
+
+  panel.querySelector('#manager-close').addEventListener('click', closeManager);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeManager();
+  });
+
+  panel.querySelectorAll('.combo-mgr-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const action = btn.dataset.action;
+      const id = btn.dataset.id;
+      if (action === 'switch') {
+        switchCombo(id);
+        closeManager();
+      } else if (action === 'rename') {
+        closeManager();
+        setTimeout(() => renameCombo(id), 100);
+      } else if (action === 'delete') {
+        closeManager();
+        setTimeout(() => deleteCombo(id), 100);
+      }
+    });
   });
 };
 
@@ -767,8 +1130,9 @@ const showCreateComboForm = () => {
     const foodie = foodieRadio ? foodieRadio.value : '';
     const rating = form.querySelector('#combo-rating').value.trim();
 
-    if (!name) {
-      alert('请输入饭店名称');
+    const validation = validateComboName(name);
+    if (!validation.valid) {
+      alert(validation.message);
       return;
     }
     if (!foodie) {
@@ -776,11 +1140,12 @@ const showCreateComboForm = () => {
       return;
     }
 
-    const newCombo = createCombo(name, foodie, rating);
+    const newCombo = createCombo(validation.name, foodie, rating);
     CURRENT_COMBO_ID = newCombo.id;
     saveCurrentCombo();
     updateComboSelector();
     closeForm();
+    showToast('组合创建成功', 'success');
   });
 };
 
@@ -789,6 +1154,9 @@ const initComboUI = () => {
 
   const selector = document.getElementById('combo-selector');
   const createBtn = document.getElementById('create-combo-btn');
+  const manageBtn = document.getElementById('combo-manage-btn');
+  const renameBtn = document.getElementById('combo-rename-btn');
+  const deleteBtn = document.getElementById('combo-delete-btn');
 
   if (selector) {
     selector.addEventListener('change', (e) => {
@@ -807,6 +1175,22 @@ const initComboUI = () => {
 
   if (createBtn) {
     createBtn.addEventListener('click', showCreateComboForm);
+  }
+
+  if (manageBtn) {
+    manageBtn.addEventListener('click', showComboManager);
+  }
+
+  if (renameBtn) {
+    renameBtn.addEventListener('click', () => {
+      if (CURRENT_COMBO_ID) renameCombo(CURRENT_COMBO_ID);
+    });
+  }
+
+  if (deleteBtn) {
+    deleteBtn.addEventListener('click', () => {
+      if (CURRENT_COMBO_ID) deleteCombo(CURRENT_COMBO_ID);
+    });
   }
 };
 
