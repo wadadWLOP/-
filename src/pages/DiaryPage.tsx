@@ -1,11 +1,13 @@
-import { useState } from 'react';
-import { Plus, BookOpen, Search, Calendar } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus, BookOpen, Search, Calendar, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button, EmptyState, DatePickerModal } from '../components/UI';
 import { ScrapbookCard } from '../components/UI/ScrapbookCard';
 import { CalendarFilter } from '../components/UI/CalendarFilter';
 import { useArchivedDiaries } from '../hooks/useArchivedDiaries';
 import { mockDiaries } from '../data/mockData';
+
+const INITIAL_DISPLAY_COUNT = 6;
 
 export function DiaryPage() {
   const navigate = useNavigate();
@@ -14,7 +16,12 @@ export function DiaryPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'qiuqiu' | 'guozhi'>('all');
   const [selectedDate, setSelectedDate] = useState<string>('');
+  const [visibleCount, setVisibleCount] = useState(INITIAL_DISPLAY_COUNT);
   const { archives, loading, deleteArchive } = useArchivedDiaries();
+
+  useEffect(() => {
+    setVisibleCount(INITIAL_DISPLAY_COUNT);
+  }, [searchQuery, selectedCategory, selectedDate]);
 
   const diaryDates = mockDiaries.map(d => d.date);
 
@@ -26,6 +33,10 @@ export function DiaryPage() {
     if (confirm('确定要删除这张归档卡片吗？')) {
       await deleteArchive(id);
     }
+  };
+
+  const handleLoadMore = () => {
+    setVisibleCount(prev => prev + INITIAL_DISPLAY_COUNT);
   };
 
   const handleArchiveClick = (id?: string) => {
@@ -164,24 +175,42 @@ export function DiaryPage() {
       {/* 归档卡片墙 */}
       <div className="min-h-[400px]">
         {!loading && filteredArchives.length > 0 && (
-          <div className="flex flex-wrap gap-8 justify-center py-4">
-            {filteredArchives.map((archive) => (
-              <ScrapbookCard
-                key={archive.id}
-                id={archive.id}
-                date={archive.date}
-                title={archive.title}
-                excerpt={archive.excerpt}
-                weather={archive.weather}
-                wordCount={archive.word_count}
-                photoUrl={archive.photo_url}
-                stickerEmoji={archive.sticker_emoji}
-                category={archive.category}
-                onClick={handleArchiveClick}
-                onDelete={() => archive.id && handleDeleteArchive(archive.id)}
-              />
-            ))}
-          </div>
+          <>
+            <div className="flex flex-wrap gap-8 justify-center py-4">
+              {filteredArchives.slice(0, visibleCount).map((archive) => (
+                <ScrapbookCard
+                  key={archive.id}
+                  id={archive.id}
+                  date={archive.date}
+                  title={archive.title}
+                  excerpt={archive.excerpt}
+                  weather={archive.weather}
+                  wordCount={archive.word_count}
+                  photoUrl={archive.photo_url}
+                  stickerEmoji={archive.sticker_emoji}
+                  category={archive.category}
+                  onClick={handleArchiveClick}
+                  onDelete={() => archive.id && handleDeleteArchive(archive.id)}
+                />
+              ))}
+            </div>
+
+            {visibleCount < filteredArchives.length && (
+              <div className="flex justify-center mt-8">
+                <button
+                  onClick={handleLoadMore}
+                  className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-pink-400 to-pink-500 text-white rounded-full font-diary text-sm shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105"
+                  style={{ fontFamily: '乐米小奶泡体' }}
+                >
+                  <ChevronDown className="w-4 h-4" />
+                  <span className="font-medium">展开更多日记</span>
+                  <span className="text-xs opacity-80">
+                    ({visibleCount}/{filteredArchives.length})
+                  </span>
+                </button>
+              </div>
+            )}
+          </>
         )}
 
         {loading && (
